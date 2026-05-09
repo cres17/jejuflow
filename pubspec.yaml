@@ -1,0 +1,61 @@
+name: jejuflow
+description: Jeju travel app — instant answer to "where to go right now by bus?"
+version: 1.0.0+1
+publish_to: none
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.5.1
+
+  # Navigation
+  go_router: ^14.2.7
+
+  # HTTP
+  dio: ^5.4.3+1
+
+  # Cache
+  hive_flutter: ^1.1.0
+
+  # Location
+  geolocator: ^11.0.0
+
+  # Maps
+  url_launcher: ^6.3.0
+
+  # Images
+  cached_network_image: ^3.3.1
+  palette_generator: ^0.3.3+3
+
+  # Fonts
+  google_fonts: ^6.2.1
+
+  # Environment
+  flutter_dotenv: ^5.1.0
+
+  # Animation
+  flutter_animate: ^4.5.0
+
+  # Utils
+  intl: ^0.20.2
+  collection: ^1.18.0
+  webview_flutter: ^4.13.1
+  webview_flutter_android: ^4.12.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
+    - assets/jeju.png
