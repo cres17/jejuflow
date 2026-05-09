@@ -1,6 +1,6 @@
 # JejuFlow 🌿
 
-> **렌터카 없는 외국인 여행자를 위한 제주 스마트 여행 앱**  
+> **렌터카 없는 여행자를 위한 제주 스마트 여행 앱**  
 > Korea Tourism Organization Open Contest 2026
 
 ---
