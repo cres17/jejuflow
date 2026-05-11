@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JejuFlow — 렌터카 없는 제주, 흐름대로</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&family=Noto+Serif+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; font-family: "Inter", "Pretendard Variable", system-ui, sans-serif; color: #1c1c18; }
+  * { box-sizing: border-box; }
+  /* Type variant overrides — set on body[data-type="..."] */
+  body[data-type="serif"] .jf-display { font-family: "Noto Serif KR", "Pretendard Variable", serif !important; font-weight: 600 !important; letter-spacing: -0.01em !important; }
+  body[data-type="mono"]  .jf-display { font-family: "JetBrains Mono", ui-monospace, monospace !important; font-weight: 600 !important; letter-spacing: -0.02em !important; }
+  body[data-type="mono"]  .jf-body    { font-family: "JetBrains Mono", ui-monospace, monospace !important; }
+  @keyframes jfPop { 0%{transform:translate(-50%,-50%) scale(0.6); opacity:0} 60%{transform:translate(-50%,-50%) scale(1.08); opacity:1} 100%{transform:translate(-50%,-50%) scale(1); opacity:1} }
+  @keyframes jfSlideUp { from{transform:translateY(40px); opacity:0} to{transform:translateY(0); opacity:1} }
+  @keyframes jfFade { from{opacity:0} to{opacity:1} }
+  ::-webkit-scrollbar { width: 0; height: 0; }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="jf-tokens.jsx"></script>
+<script type="text/babel" src="jf-primitives.jsx"></script>
+<script type="text/babel" src="jf-home.jsx"></script>
+<script type="text/babel" src="jf-screens.jsx"></script>
+</head>
+<body data-type="pretendard" style="background-color: rgb(240, 240, 252)">
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+
+const { useState, useEffect, useMemo, useRef } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "lang": "ko",
+  "weather": "cloudy",
+  "type": "pretendard"
+} /*EDITMODE-END*/;
+
+// Phone frame (Android-ish, 412×892)
+const Phone = ({ children, label }) =>
+<div data-screen-label={label} style={{
+  width: 412, height: 892, position: 'relative',
+  background: EG.surface, borderRadius: 44, overflow: 'hidden',
+  border: `1px solid ${EG.outlineV}`,
+  boxShadow: '0 30px 80px rgba(28,28,24,0.18), 0 0 0 8px #1c1c18'
+}}>{children}</div>;
+
+
+// Onboarding — first-run modal
+const Onboarding = ({ lang, setLang, userType, setUserType, onDone }) => {
+  const [step, setStep] = useState(0);
+  const langs = [
+  { code: 'ko', label: '한국어', sub: 'KR' },
+  { code: 'en', label: 'English', sub: 'EN' },
+  { code: 'ja', label: '日本語', sub: 'JP' },
+  { code: 'zh', label: '中文', sub: 'ZH' }];
+
+  const t = I18N[lang];
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: EG.surface, zIndex: 80,
+      display: 'flex', flexDirection: 'column', animation: 'jfFade 0.4s' }}>
+      <StatusBar />
+      {/* mark */}
+      <div style={{ padding: '8px 32px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, letterSpacing: '0.16em', color: EG.ink2, textTransform: 'uppercase' }}>
+        <span>JejuFlow</span>
+        <span style={{ fontFamily: FONT_MONO }}>{step + 1} / 2</span>
+      </div>
+
+      <div style={{ flex: 1, padding: '36px 32px', display: 'flex', flexDirection: 'column' }}>
+        {step === 0 &&
+        <>
+            <div className="jf-display" style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 44,
+            letterSpacing: '-0.035em', color: EG.ink, lineHeight: 1.02 }}>
+              Choose your<br />language.
+            </div>
+            <div style={{ fontSize: 14, color: EG.ink2, marginTop: 14, fontFamily: FONT_BODY }}>
+              {lang === 'ko' ? '제주를 어떤 언어로 안내해드릴까요?' : 'Pick a language for your Jeju guide.'}
+            </div>
+            <div style={{ marginTop: 36, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {langs.map((l) =>
+            <div key={l.code} onClick={() => setLang(l.code)}
+            style={{ padding: '22px 18px', borderRadius: 24, cursor: 'pointer',
+              background: l.code === lang ? EG.ink : EG.surfaceLow,
+              color: l.code === lang ? EG.surface : EG.ink, transition: 'all 0.18s' }}>
+                  <div style={{ fontFamily: FONT_MONO, fontSize: 11, opacity: 0.6, fontWeight: 600 }}>{l.sub}</div>
+                  <div className="jf-display" style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22,
+                letterSpacing: '-0.02em', marginTop: 4 }}>{l.label}</div>
+                </div>
+            )}
+            </div>
+          </>
+        }
+        {step === 1 &&
+        <>
+            <div className="jf-display" style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 44,
+            letterSpacing: '-0.035em', color: EG.ink, lineHeight: 1.02 }}>
+              {lang === 'ko' ? '어떤 여행자\n이신가요?' : lang === 'en' ? 'Who is\ntraveling?' : lang === 'ja' ? 'どんな\n旅行者?' : '哪种\n旅行者?'}
+            </div>
+            <div style={{ fontSize: 14, color: EG.ink2, marginTop: 14, fontFamily: FONT_BODY }}>
+              {lang === 'ko' ? '맞춤 정보를 보여드릴게요.' : lang === 'en' ? "We'll tailor the guide." : lang === 'ja' ? '案内を最適化します。' : '为您定制指南。'}
+            </div>
+            <div style={{ marginTop: 36, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {[
+            { id: 'domestic', label: t.domestic, sub: lang === 'ko' ? '한국어 우선·정류장 한글' : 'Korean signage' },
+            { id: 'foreign', label: t.foreign, sub: lang === 'ko' ? '다국어 안내·번역 표기' : 'Multi-lang labels' }].
+            map((u) =>
+            <div key={u.id} onClick={() => setUserType(u.id)}
+            style={{ padding: '20px 22px', borderRadius: 24, cursor: 'pointer',
+              background: userType === u.id ? EG.ink : EG.surfaceLow,
+              color: userType === u.id ? EG.surface : EG.ink, transition: 'all 0.18s',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div>
+                    <div className="jf-display" style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22, letterSpacing: '-0.02em' }}>{u.label}</div>
+                    <div style={{ fontSize: 12, opacity: 0.7, marginTop: 2, fontFamily: FONT_BODY }}>{u.sub}</div>
+                  </div>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%',
+                border: `1.5px solid ${userType === u.id ? EG.surface : EG.outlineV}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {userType === u.id && <div style={{ width: 12, height: 12, borderRadius: '50%', background: EG.surface }} />}
+                  </div>
+                </div>
+            )}
+            </div>
+          </>
+        }
+
+        <div style={{ marginTop: 'auto', display: 'flex', gap: 10 }}>
+          {step > 0 && <PillButton kind="ghost" size="lg" onClick={() => setStep((s) => s - 1)}>←</PillButton>}
+          <PillButton kind="primary" size="lg" style={{ flex: 1 }}
+          onClick={() => step === 0 ? setStep(1) : onDone()}>
+            {step === 0 ? lang === 'ko' ? '다음' : 'Next' : lang === 'ko' ? '제주 흐름 시작' : 'Begin the flow'} →
+          </PillButton>
+        </div>
+      </div>
+    </div>);
+
+};
+
+// ─── Alternate Home variants (Editorial / Stream / Compass) ───
+const HomeEditorial = ({ weather, lang, hour, setHour, route, addRoute, onOpenSpot }) => {
+  const t = I18N[lang];const w = WEATHERS[weather];
+  const indoor = weather === 'rain' || weather === 'wind';
+  const recs = SPOTS.filter((s) => indoor ? s.indoor : !s.indoor).slice(0, 4);
+  const bg = mix(EG.surface, w.tint, 0.04);
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: bg, overflowY: 'auto', transition: 'background 0.6s' }}>
+      <StatusBar />
+      {/* hero — magazine type */}
+      <div style={{ padding: '8px 28px 0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          fontFamily: FONT_MONO, fontSize: 10, color: EG.outline, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+          <span>VOL · 026 / MAY 06</span>
+          <span>{w.glyph} {w.temp}°</span>
+        </div>
+        <div className="jf-display" style={{ marginTop: 22, fontFamily: FONT_DISPLAY, fontWeight: 800,
+          fontSize: 76, letterSpacing: '-0.045em', lineHeight: 0.92, color: EG.ink }}>
+          Jeju<br />in flow.
+        </div>
+        <div style={{ marginTop: 20, display: 'flex', alignItems: 'center', gap: 10,
+          fontFamily: FONT_BODY, fontSize: 14, color: EG.ink2, lineHeight: 1.5 }}>
+          <div style={{ flex: 1 }}>
+            {weather === 'rain' ? t.becauseRain : weather === 'wind' ? t.becauseWind : weather === 'cloudy' ? t.becauseCloud : t.becauseSun}
+          </div>
+          <div style={{ width: 60, height: 60, borderRadius: '50%', background: EG.ink, color: EG.surface,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            fontFamily: FONT_MONO, fontSize: 22, fontWeight: 600 }}>{w.glyph}</div>
+        </div>
+      </div>
+
+      {/* numbered index */}
+      <div style={{ marginTop: 28, padding: '0 28px', borderTop: `1px solid ${EG.outlineV}` }}>
+        {recs.map((s, i) =>
+        <div key={s.id} onClick={() => onOpenSpot(s.id)}
+        style={{ display: 'flex', gap: 16, padding: '20px 0', borderBottom: `1px solid ${EG.outlineV}`,
+          cursor: 'pointer', fontFamily: FONT_BODY }}>
+            <span className="jf-display" style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22,
+            color: EG.outline, letterSpacing: '-0.02em', flexShrink: 0, width: 36 }}>
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="jf-display" style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 24,
+              color: EG.ink, letterSpacing: '-0.025em', lineHeight: 1.05 }}>{s.name[lang]}</div>
+              <div style={{ fontSize: 12, color: EG.ink2, marginTop: 4 }}>{s.blurb[lang]}</div>
+              <div style={{ marginTop: 8, fontFamily: FONT_MONO, fontSize: 11, color: EG.outline, letterSpacing: '0.04em' }}>
+                {t.busLine(s.busLine)} · {s.busIn}m · ↗ {s.walk}m walk
+              </div>
+            </div>
+            <SpotImg spot={s} height={80} radius={14} style={{ width: 80, flexShrink: 0 }} />
+          </div>
+        )}
+      </div>
+      <div style={{ height: 130 }} />
+    </div>);
+
+};
+
+const HomeStream = ({ weather, lang, hour, setHour, route, addRoute, onOpenSpot }) => {
+  const t = I18N[lang];const w = WEATHERS[weather];
+  const indoor = weather === 'rain' || weather === 'wind';
+  const recs = SPOTS.filter((s) => indoor ? s.indoor : !s.indoor).slice(0, 5);
+  const bg = mix(EG.surface, w.tint, 0.04);
+  // a flowing vertical timeline — stream metaphor
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: bg, overflowY: 'auto', transition: 'background 0.6s' }}>
+      <StatusBar />
+      <div style={{ padding: '6px 28px 0' }}>
+        <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: EG.outline, letterSpacing: '0.14em' }}>
+          09:41 · {w.glyph} {w.temp}°
+        </div>
+        <div className="jf-display" style={{ marginTop: 14, fontFamily: FONT_DISPLAY, fontWeight: 700,
+          fontSize: 38, letterSpacing: '-0.03em', lineHeight: 1, color: EG.ink }}>
+          {t.flowFor}
+        </div>
+        <div style={{ fontSize: 13, color: EG.ink2, marginTop: 6, fontFamily: FONT_BODY }}>
+          {weather === 'rain' ? t.becauseRain : weather === 'wind' ? t.becauseWind : weather === 'cloudy' ? t.becauseCloud : t.becauseSun}
+        </div>
+      </div>
+
+      {/* the stream */}
+      <div style={{ marginTop: 28, padding: '0 28px', position: 'relative' }}>
+        {/* left river line */}
+        <svg width="6" height={recs.length * 152} style={{ position: 'absolute', left: 28, top: 16 }}>
+          <path d={`M 3 0 ${recs.map((_, i) => `Q ${i % 2 ? 6 : 0} ${i * 152 + 76} 3 ${(i + 1) * 152}`).join(' ')}`}
+          fill="none" stroke={EG.tertiary} strokeWidth="1.4" strokeDasharray="3 4" opacity="0.55" />
+        </svg>
+        {recs.map((s, i) => {
+          const hh = 9 + i * 2;
+          return (
+            <div key={s.id} style={{ display: 'flex', gap: 18, paddingLeft: 14, paddingBottom: 18, position: 'relative' }}>
+              <div style={{ width: 46, flexShrink: 0, paddingTop: 4 }}>
+                <div style={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 700, color: EG.ink }}>
+                  {String(hh).padStart(2, '0')}:00
+                </div>
+                <div style={{ fontSize: 9, color: EG.outline, fontFamily: FONT_MONO, marginTop: 2 }}>
+                  +{s.busIn}m
+                </div>
+              </div>
+              <div onClick={() => onOpenSpot(s.id)} style={{ flex: 1, cursor: 'pointer',
+                background: EG.surfaceLow, borderRadius: 24, padding: 14, position: 'relative',
+                fontFamily: FONT_BODY }}>
+                <SpotImg spot={s} height={110} radius={16} />
+                <div style={{ marginTop: 10, display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                  <div className="jf-display" style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18,
+                    letterSpacing: '-0.02em', color: EG.ink }}>{s.name[lang]}</div>
+                  <span onClick={(e) => {e.stopPropagation();addRoute(s.id);}}
+                  style={{ width: 26, height: 26, borderRadius: '50%',
+                    background: route.find((r) => r.id === s.id) ? EG.primary : EG.surfaceCt,
+                    color: route.find((r) => r.id === s.id) ? '#fff' : EG.ink,
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0, fontSize: 14, fontWeight: 600 }}>
+                    {route.find((r) => r.id === s.id) ? '✓' : '+'}
+                  </span>
+                </div>
+                <div style={{ marginTop: 6, fontFamily: FONT_MONO, fontSize: 10, color: EG.outline, letterSpacing: '0.04em' }}>
+                  {t.busLine(s.busLine)} · ↗ {s.walk}m
+                </div>
+              </div>
+            </div>);
+
+        })}
+      </div>
+      <div style={{ height: 130 }} />
+    </div>);
+
+};
+
+const HomeCompass = ({ weather, lang, hour, setHour, route, addRoute, onOpenSpot }) => {
+  const t = I18N[lang];const w = WEATHERS[weather];
+  const indoor = weather === 'rain' || weather === 'wind';
+  const recs = SPOTS.filter((s) => indoor ? s.indoor : !s.indoor).slice(0, 6);
+  const bg = mix(EG.surface, w.tint, 0.04);
+  const cx = 206,cy = 380,R = 150;
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: bg, overflow: 'hidden', transition: 'background 0.6s' }}>
+      <StatusBar />
+      <div style={{ padding: '6px 28px 0', textAlign: 'center' }}>
+        <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: EG.outline, letterSpacing: '0.14em' }}>
+          YOU · 33.499°N 126.531°E
+        </div>
+        <div className="jf-display" style={{ marginTop: 8, fontFamily: FONT_DISPLAY, fontWeight: 700,
+          fontSize: 30, letterSpacing: '-0.025em', color: EG.ink }}>
+          {w.temp}° {w.glyph} {w.label[lang]}
+        </div>
+      </div>
+
+      {/* compass */}
+      <svg width="412" height="520" style={{ position: 'absolute', top: 110, left: 0 }}>
+        {[60, 100, 140].map((r) =>
+        <circle key={r} cx={cx} cy={cy} r={r} fill="none" stroke={EG.outlineV} strokeWidth="0.6" strokeDasharray="2 3" opacity="0.5" />
+        )}
+        {/* cardinal */}
+        {['N', 'E', 'S', 'W'].map((d, i) => {
+          const a = (i * 90 - 90) * Math.PI / 180;
+          return (
+            <text key={d} x={cx + Math.cos(a) * 168} y={cy + Math.sin(a) * 168 + 4}
+            textAnchor="middle" fontFamily={FONT_MONO} fontSize="11" fontWeight="600" fill={EG.outline} letterSpacing="0.1em">{d}</text>);
+
+        })}
+        {/* center YOU */}
+        <circle cx={cx} cy={cy} r="18" fill={EG.ink} />
+        <circle cx={cx} cy={cy} r="34" fill="none" stroke={EG.tertiary} strokeWidth="0.8" strokeDasharray="2 2" opacity="0.6" />
+        <text x={cx} y={cy + 4} textAnchor="middle" fill={EG.surface} fontFamily={FONT_DISPLAY}
+        fontWeight="700" fontSize="13" letterSpacing="-0.02em">YOU</text>
+        {/* spots radial */}
+        {recs.map((s, i) => {
+          const a = i / recs.length * Math.PI * 2 - Math.PI / 2;
+          const x = cx + Math.cos(a) * R;
+          const y = cy + Math.sin(a) * R;
+          return (
+            <g key={s.id} onClick={() => onOpenSpot(s.id)} style={{ cursor: 'pointer' }}>
+              <line x1={cx} y1={cy} x2={x} y2={y} stroke={EG.outlineV} strokeWidth="0.5" strokeDasharray="1 2" />
+              <circle cx={x} cy={y} r="22" fill={EG.surface} stroke={EG.ink} strokeWidth="1.2" />
+              <text x={x} y={y - 3} textAnchor="middle" fontSize="9" fontFamily={FONT_MONO} fontWeight="600" fill={EG.ink2}>
+                {s.busIn}m
+              </text>
+              <text x={x} y={y + 7} textAnchor="middle" fontSize="9" fontFamily={FONT_MONO} fill={EG.outline}>
+                {t.busLine(s.busLine).slice(0, 4)}
+              </text>
+              <text x={x} y={y + (a > 0 ? 38 : -28)} textAnchor="middle" fontSize="11" fontFamily={FONT_DISPLAY}
+              fontWeight="700" fill={EG.ink} letterSpacing="-0.02em">{s.name[lang].slice(0, 6)}</text>
+            </g>);
+
+        })}
+      </svg>
+      <div style={{ position: 'absolute', bottom: 110, left: 28, right: 28, fontFamily: FONT_BODY,
+        fontSize: 12, color: EG.ink2, textAlign: 'center', lineHeight: 1.5 }}>
+        {weather === 'rain' ? t.becauseRain : weather === 'wind' ? t.becauseWind : weather === 'cloudy' ? t.becauseCloud : t.becauseSun}
+      </div>
+    </div>);
+
+};
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const lang = t.lang;
+  const weather = t.weather;
+  const [tab, setTab] = useState('home');
+  const [hour, setHour] = useState(11);
+  const [route, setRoute] = useState([]);
+  const [openSpot, setOpenSpot] = useState(null);
+  const [userType, setUserType] = useState('domestic');
+  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [homeVariant, setHomeVariant] = useState('stack');
+  const [view, setView] = useState('proto'); // 'proto' | 'canvas'
+
+  useEffect(() => {document.body.dataset.type = t.type;}, [t.type]);
+
+  const addRoute = (id) => setRoute((r) => r.find((x) => x.id === id) ? r : [...r, SPOTS.find((s) => s.id === id)]);
+  const removeRoute = (id) => setRoute((r) => r.filter((x) => x.id !== id));
+
+  const homeProps = { weather, lang, hour, setHour, route, addRoute, removeRoute, onOpenSpot: setOpenSpot };
+  const HomeMap = { stack: HomeScreen, editorial: HomeEditorial, stream: HomeStream, compass: HomeCompass };
+  const HomeView = HomeMap[homeVariant] || HomeScreen;
+
+  const screen = (() => {
+    if (tab === 'home') return <HomeView {...homeProps} />;
+    if (tab === 'explore') return <ExploreScreen weather={weather} lang={lang} route={route} addRoute={addRoute} onOpenSpot={setOpenSpot} />;
+    if (tab === 'route') return <RouteScreen weather={weather} lang={lang} route={route} removeRoute={removeRoute} reorderRoute={() => {}} hour={hour} />;
+    if (tab === 'settings') return <SettingsScreen lang={lang} setLang={(v) => setTweak('lang', v)} userType={userType} setUserType={setUserType} dark={false} setDark={() => {}} />;
+  })();
+
+  return (
+    <React.Fragment>
+      {view === 'proto' ?
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 40, background: '#e8e6df' }}>
+          <Phone label={`${tab}`}>
+            {screen}
+            <TabDock active={tab} t={I18N[lang]} onTab={setTab} />
+            {openSpot &&
+          <SpotDetail spotId={openSpot} lang={lang} weather={weather} route={route}
+          addRoute={addRoute} removeRoute={removeRoute} onClose={() => setOpenSpot(null)} />
+          }
+            {showOnboarding &&
+          <Onboarding lang={lang} setLang={(v) => setTweak('lang', v)}
+          userType={userType} setUserType={setUserType} onDone={() => setShowOnboarding(false)} />
+          }
+          </Phone>
+        </div> :
+
+      <DesignCanvas>
+          <DCSection id="home" title="Home — 4 metaphors" subtitle="Same data; four different ways to feel today's flow.">
+            <DCArtboard id="stack" label="01 · Stack — tactile, swipeable" width={412} height={892}>
+              <Phone label="01 stack"><HomeScreen {...homeProps} /></Phone>
+            </DCArtboard>
+            <DCArtboard id="editorial" label="02 · Editorial — magazine, type-led" width={412} height={892}>
+              <Phone label="02 editorial"><HomeEditorial {...homeProps} /></Phone>
+            </DCArtboard>
+            <DCArtboard id="stream" label="03 · Stream — flowing river timeline" width={412} height={892}>
+              <Phone label="03 stream"><HomeStream {...homeProps} /></Phone>
+            </DCArtboard>
+            <DCArtboard id="compass" label="04 · Compass — radial, you-at-center" width={412} height={892}>
+              <Phone label="04 compass"><HomeCompass {...homeProps} /></Phone>
+            </DCArtboard>
+          </DCSection>
+          <DCSection id="flow" title="Full flow" subtitle="The other three core screens + onboarding.">
+            <DCArtboard id="onboarding" label="00 · Onboarding" width={412} height={892}>
+              <Phone label="00 onboarding"><Onboarding lang={lang} setLang={(v) => setTweak('lang', v)} userType={userType} setUserType={setUserType} onDone={() => {}} /></Phone>
+            </DCArtboard>
+            <DCArtboard id="explore" label="Explore" width={412} height={892}>
+              <Phone label="explore"><ExploreScreen weather={weather} lang={lang} route={route} addRoute={addRoute} onOpenSpot={() => {}} /></Phone>
+            </DCArtboard>
+            <DCArtboard id="route" label="Route" width={412} height={892}>
+              <Phone label="route"><RouteScreen weather={weather} lang={lang} route={route.length ? route : [SPOTS[0], SPOTS[2], SPOTS[4]]} removeRoute={() => {}} reorderRoute={() => {}} hour={hour} /></Phone>
+            </DCArtboard>
+            <DCArtboard id="settings" label="Settings" width={412} height={892}>
+              <Phone label="settings"><SettingsScreen lang={lang} setLang={(v) => setTweak('lang', v)} userType={userType} setUserType={setUserType} dark={false} setDark={() => {}} /></Phone>
+            </DCArtboard>
+          </DCSection>
+        </DesignCanvas>
+      }
+
+      {/* view switcher — top-left small */}
+      <div style={{ position: 'fixed', top: 12, left: 12, zIndex: 1000, display: 'flex', gap: 4,
+        background: 'rgba(28,28,24,0.92)', borderRadius: 999, padding: 4, fontFamily: FONT_BODY }}>
+        {[['proto', 'Prototype'], ['canvas', 'Canvas']].map(([id, label]) =>
+        <button key={id} onClick={() => setView(id)} style={{ ...{
+            border: 'none', padding: '7px 14px', borderRadius: 999, fontSize: 11, fontWeight: 600,
+            cursor: 'pointer', letterSpacing: '0.02em',
+            background: view === id ? EG.surface : 'transparent',
+            color: view === id ? EG.ink : 'rgba(252,249,242,0.62)'
+          }, color: "rgb(240, 240, 252)" }}>{label}</button>
+        )}
+      </div>
+
+      <TweaksPanel title="JejuFlow">
+        <TweakSection label="Language · 언어" />
+        <TweakRadio label="UI" value={lang}
+        options={['ko', 'en', 'ja', 'zh']}
+        onChange={(v) => setTweak('lang', v)} />
+
+        <TweakSection label="Weather · 날씨 (Home 배경 반응)" />
+        <TweakRadio label="State" value={weather}
+        options={['sunny', 'cloudy', 'rain', 'wind']}
+        onChange={(v) => setTweak('weather', v)} />
+
+        <TweakSection label="Typography · 타이포" />
+        <TweakRadio label="Family" value={t.type}
+        options={[
+        { value: 'pretendard', label: 'Sans' },
+        { value: 'serif', label: 'Serif' },
+        { value: 'mono', label: 'Mono' }]
+        }
+        onChange={(v) => setTweak('type', v)} />
+
+        <TweakSection label="Home variant" />
+        <TweakRadio label="Metaphor" value={homeVariant}
+        options={[
+        { value: 'stack', label: 'Stack' },
+        { value: 'editorial', label: 'Editorial' },
+        { value: 'stream', label: 'Stream' },
+        { value: 'compass', label: 'Compass' }]
+        }
+        onChange={setHomeVariant} />
+
+        <TweakSection label="Flow" />
+        <TweakSelect label="Tab" value={tab}
+        options={['home', 'explore', 'route', 'settings']}
+        onChange={setTab} />
+        <TweakToggle label="Onboarding" value={showOnboarding} onChange={setShowOnboarding} />
+        <TweakButton label="Seed sample route" onClick={() => setRoute([SPOTS[0], SPOTS[2], SPOTS[4]])} />
+        <TweakButton label="Clear route" secondary onClick={() => setRoute([])} />
+      </TweaksPanel>
+    </React.Fragment>);
+
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>

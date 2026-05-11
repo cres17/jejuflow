@@ -425,19 +425,29 @@ class TourService {
 }
 
 String _serviceName(String language) {
-  return 'KorService2';
+  return switch (_sourceLanguage(language)) {
+    'en' => 'EngService2',
+    'ja' => 'JpnService2',
+    'zh' => 'ChsService2',
+    _ => 'KorService2',
+  };
 }
 
 String _sourceLanguage(String language) {
-  return 'ko';
+  return switch (language) {
+    'en' => 'en',
+    'ja' => 'ja',
+    'zh' => 'zh',
+    _ => 'ko',
+  };
 }
 
 String _touristContentTypeId(String language) {
-  return '12';
+  return _sourceLanguage(language) == 'ko' ? '12' : '76';
 }
 
 String _foodContentTypeId(String language) {
-  return '39';
+  return _sourceLanguage(language) == 'ko' ? '39' : '82';
 }
 
 bool _isPlaceTypeMatch(TourPlace place, PlaceType type, String language) {

@@ -14,6 +14,7 @@ import '../core/services/weather_service.dart';
 import '../core/services/transit_service.dart';
 import '../core/services/tour_service.dart';
 import '../core/services/color_extract_service.dart';
+import '../core/services/local_notification_service.dart';
 import '../core/utils/location_utils.dart';
 import '../core/utils/weather_utils.dart';
 
@@ -82,12 +83,38 @@ final languageSelectedProvider = StateProvider<bool>((ref) {
   return Hive.box<String>('cache').get('app:languageSelected') == 'true';
 });
 
+final routeRemindersEnabledProvider = StateProvider<bool>((ref) {
+  return Hive.box<String>('cache').get('notifications:routes') == 'true';
+});
+
 Future<void> persistAppLanguage(WidgetRef ref, AppLanguage language) async {
   ref.read(appLanguageProvider.notifier).state = language;
   ref.read(languageSelectedProvider.notifier).state = true;
   final box = Hive.box<String>('cache');
   await box.put('app:language', language.name);
   await box.put('app:languageSelected', 'true');
+}
+
+Future<bool> setRouteRemindersEnabled(WidgetRef ref, bool enabled) async {
+  final box = Hive.box<String>('cache');
+  if (!enabled) {
+    ref.read(routeRemindersEnabledProvider.notifier).state = false;
+    await box.put('notifications:routes', 'false');
+    final routes = ref.read(savedRoutesProvider).valueOrNull ?? const [];
+    await LocalNotificationService.cancelRouteReminders(routes);
+    return true;
+  }
+
+  final granted = await LocalNotificationService.requestPermissions();
+  if (!granted) return false;
+  ref.read(routeRemindersEnabledProvider.notifier).state = true;
+  await box.put('notifications:routes', 'true');
+  final routes = await ref.read(savedRoutesProvider.future);
+  await LocalNotificationService.scheduleRouteReminders(
+    routes,
+    languageCode: ref.read(appLanguageProvider).name,
+  );
+  return true;
 }
 
 String tr(AppLanguage lang, String key) {
@@ -195,6 +222,19 @@ final appInitProvider = FutureProvider<void>((ref) async {
   ref.read(regionProvider.notifier).state = region;
   await ref.read(weatherProvider(region).future);
   await ref.read(savedRoutesProvider.notifier).load();
+  final box = Hive.box<String>('cache');
+  if (box.get('notifications:weather') == 'true') {
+    await box.put('notifications:weather', 'false');
+    await LocalNotificationService.cancelLegacyWeatherAlerts();
+  }
+  final language = ref.read(appLanguageProvider).name;
+  if (ref.read(routeRemindersEnabledProvider)) {
+    final routes = ref.read(savedRoutesProvider).valueOrNull ?? const [];
+    await LocalNotificationService.scheduleRouteReminders(
+      routes,
+      languageCode: language,
+    );
+  }
   final languageCode = tourLanguageCode(ref.read(appLanguageProvider));
   unawaited(Future.wait([
     TourService.fetchAllPlaces(
@@ -334,21 +374,66 @@ class SavedRoutesNotifier extends AsyncNotifier<List<SavedRoute>> {
     final updated = [route, ...current];
     state = AsyncData(updated);
     await _persist(updated);
+    if (ref.read(routeRemindersEnabledProvider)) {
+      await LocalNotificationService.scheduleRouteReminder(
+        route,
+        languageCode: ref.read(appLanguageProvider).name,
+      );
+    }
   }
 
   Future<void> remove(String id) async {
-    final updated = (state.valueOrNull ?? []).where((r) => r.id != id).toList();
+    final current = state.valueOrNull ?? [];
+    final removed = current.where((r) => r.id == id).toList();
+    if (removed.isEmpty) return;
+    final removedSpotId = removed.first.spotId;
+    final removedRoutes =
+        current.where((r) => r.spotId == removedSpotId).toList();
+    final updated = current.where((r) => r.spotId != removedSpotId).toList();
     state = AsyncData(updated);
+    final draft = ref.read(routeDraftProvider);
+    ref.read(routeDraftProvider.notifier).state =
+        draft.where((spot) => spot.id != removedSpotId).toList();
+    final schedule = ref.read(routeDraftScheduleProvider);
+    ref.read(routeDraftScheduleProvider.notifier).state = {
+      for (final entry in schedule.entries)
+        if (entry.key != removedSpotId) entry.key: entry.value,
+    };
+    await LocalNotificationService.cancelRouteReminders(removedRoutes);
     await _persist(updated);
   }
 
   Future<void> reschedule(String id, DateTime scheduledAt) async {
-    final updated = (state.valueOrNull ?? [])
+    final current = state.valueOrNull ?? [];
+    SavedRoute? previous;
+    for (final route in current) {
+      if (route.id == id) {
+        previous = route;
+        break;
+      }
+    }
+    final updated = current
         .map((route) =>
             route.id == id ? route.copyWith(savedAt: scheduledAt) : route)
         .toList();
     state = AsyncData(updated);
     await _persist(updated);
+    SavedRoute? rescheduled;
+    for (final route in updated) {
+      if (route.id == id) {
+        rescheduled = route;
+        break;
+      }
+    }
+    if (previous != null) {
+      await LocalNotificationService.cancelRouteReminder(previous);
+    }
+    if (rescheduled != null && ref.read(routeRemindersEnabledProvider)) {
+      await LocalNotificationService.scheduleRouteReminder(
+        rescheduled,
+        languageCode: ref.read(appLanguageProvider).name,
+      );
+    }
   }
 
   Future<void> reorder(int oldIndex, int newIndex) async {
@@ -477,7 +562,12 @@ final apiRecommendedSpotsProvider = FutureProvider<List<Spot>>((ref) async {
 });
 
 String tourLanguageCode(AppLanguage language) {
-  return 'ko';
+  return switch (language) {
+    AppLanguage.ko => 'ko',
+    AppLanguage.en => 'en',
+    AppLanguage.ja => 'ja',
+    AppLanguage.zh => 'zh',
+  };
 }
 
 String weatherLabelFor(AppLanguage language, WeatherCondition condition) {

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -221,6 +223,7 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> {
     ));
   }
 
+  // ignore: unused_element
   Future<void> _rescheduleRoute(SavedRoute route) async {
     final pickedDate = await showDatePicker(
         context: context,
@@ -372,6 +375,7 @@ class _JejuMapSection extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: LayoutBuilder(builder: (ctx, constraints) {
           final size = Size(constraints.maxWidth, constraints.maxHeight);
+          final pinPositions = _spreadPinPositions(spots, size);
           return Stack(
             fit: StackFit.expand,
             children: [
@@ -386,7 +390,7 @@ class _JejuMapSection extends StatelessWidget {
                 _MapPin(
                   route: spots[i],
                   index: i,
-                  position: _project(spots[i].lat!, spots[i].lng!, size),
+                  position: pinPositions[i],
                 ),
               // MAP label pill
               Positioned(
@@ -419,6 +423,34 @@ class _JejuMapSection extends StatelessWidget {
   }
 }
 
+List<Offset> _spreadPinPositions(List<SavedRoute> routes, Size size) {
+  final positions = routes
+      .map((route) => projectJejuLatLng(route.lat!, route.lng!, size))
+      .toList();
+  final adjusted = <Offset>[];
+  const minDistance = 18.0;
+
+  for (var i = 0; i < positions.length; i++) {
+    var position = positions[i];
+    var collisionCount = 0;
+    for (final previous in adjusted) {
+      if ((position - previous).distance < minDistance) collisionCount++;
+    }
+    if (collisionCount > 0) {
+      final angle = (collisionCount * 70 + i * 31) * math.pi / 180;
+      final radius = 12.0 + collisionCount * 4.0;
+      position = Offset(
+        (position.dx + math.cos(angle) * radius).clamp(12.0, size.width - 12.0),
+        (position.dy + math.sin(angle) * radius)
+            .clamp(12.0, size.height - 12.0),
+      );
+    }
+    adjusted.add(position);
+  }
+
+  return adjusted;
+}
+
 class _RoutePainter extends CustomPainter {
   const _RoutePainter(this.routes, this.size, this.project);
   final List<SavedRoute> routes;
@@ -436,7 +468,9 @@ class _RoutePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
     final path = Path()..moveTo(pts.first.dx, pts.first.dy);
-    for (final p in pts.skip(1)) path.lineTo(p.dx, p.dy);
+    for (final p in pts.skip(1)) {
+      path.lineTo(p.dx, p.dy);
+    }
     canvas.drawPath(path, paint);
   }
 
@@ -650,9 +684,9 @@ class _TimelineRow extends StatelessWidget {
                             child: Container(
                               width: 28,
                               height: 90,
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 color: _C.surfaceCt,
-                                borderRadius: const BorderRadius.horizontal(
+                                borderRadius: BorderRadius.horizontal(
                                     left: Radius.circular(24)),
                               ),
                               child: const Icon(Icons.drag_indicator_rounded,
@@ -688,7 +722,7 @@ class _TimelineRow extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  route.spotName,
+                                  _displayRouteName(route, lang),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: GoogleFonts.montserrat(
@@ -749,7 +783,7 @@ class _TimelineRow extends StatelessWidget {
                         child: Container(
                           width: 26,
                           height: 26,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                             color: _C.primaryC,
                           ),
@@ -791,7 +825,7 @@ class _TimelineRow extends StatelessWidget {
         AppLanguage.ko => '오름',
         AppLanguage.en => 'Oreum',
         AppLanguage.ja => '오름',
-        AppLanguage.zh => '오름',
+        AppLanguage.zh => '山丘',
       };
     }
     return switch (lang) {
@@ -901,6 +935,12 @@ String _localizedRouteName(SavedRoute route, AppLanguage lang) {
   final source =
       route.koreanName?.isNotEmpty == true ? route.koreanName! : route.spotName;
   return localizeKoreanTourText(source, lang, titleCase: true);
+}
+
+String _displayRouteName(SavedRoute route, AppLanguage lang) {
+  final spot = kSpotById[route.spotId];
+  if (spot != null) return spotDisplayName(spot, lang);
+  return _localizedRouteName(route, lang);
 }
 
 String _routeLabel(AppLanguage lang) => switch (lang) {

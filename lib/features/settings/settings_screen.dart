@@ -15,13 +15,11 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String _visitor = 'kr';
-  bool _weather = true;
-  bool _bus = true;
-  bool _route = false;
 
   @override
   Widget build(BuildContext context) {
     final language = ref.watch(appLanguageProvider);
+    final routeReminders = ref.watch(routeRemindersEnabledProvider);
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: SafeArea(
@@ -103,22 +101,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               child: _TonalList(
                 children: [
                   _SwitchRow(
-                      title: _weatherAlertsLabel(language),
-                      value: _weather,
-                      onChanged: (v) => setState(() => _weather = v)),
-                  _SwitchRow(
-                      title: _busArrivalLabel(language),
-                      value: _bus,
-                      onChanged: (v) => setState(() => _bus = v)),
-                  _SwitchRow(
                       title: _routeRemindersLabel(language),
-                      value: _route,
-                      onChanged: (v) => setState(() => _route = v)),
+                      value: routeReminders,
+                      onChanged: (v) =>
+                          _toggleRouteReminders(context, language, v)),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _toggleRouteReminders(
+      BuildContext context, AppLanguage language, bool enabled) async {
+    final changed = await setRouteRemindersEnabled(ref, enabled);
+    if (!changed && context.mounted) {
+      _showPermissionSnack(context, language);
+    }
+  }
+
+  void _showPermissionSnack(BuildContext context, AppLanguage language) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(_notificationPermissionLabel(language)),
+        backgroundColor: AppColors.accent,
       ),
     );
   }
@@ -309,6 +317,13 @@ String _settingsKicker(AppLanguage lang) => switch (lang) {
       AppLanguage.zh => '设置',
     };
 
+String _notificationPermissionLabel(AppLanguage lang) => switch (lang) {
+      AppLanguage.ko => '알림 권한을 허용해야 사용할 수 있어요.',
+      AppLanguage.en => 'Notification permission is required.',
+      AppLanguage.ja => '通知の許可が必要です。',
+      AppLanguage.zh => '需要允许通知权限。',
+    };
+
 String _preferencesLabel(AppLanguage lang) => switch (lang) {
       AppLanguage.ko => '환경 설정',
       AppLanguage.en => 'Preferences',
@@ -400,6 +415,7 @@ String _foreignSub(AppLanguage lang) => switch (lang) {
       AppLanguage.zh => '多语言指南',
     };
 
+// ignore: unused_element
 String _weatherAlertsLabel(AppLanguage lang) => switch (lang) {
       AppLanguage.ko => '날씨 알림',
       AppLanguage.en => 'Weather alerts',
@@ -407,6 +423,7 @@ String _weatherAlertsLabel(AppLanguage lang) => switch (lang) {
       AppLanguage.zh => '天气提醒',
     };
 
+// ignore: unused_element
 String _busArrivalLabel(AppLanguage lang) => switch (lang) {
       AppLanguage.ko => '버스 도착',
       AppLanguage.en => 'Bus arrival',
