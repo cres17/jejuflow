@@ -2,15 +2,18 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
-const _westLng = 126.12;
+// Main Jeju island bounds. The map artwork also includes nearby islets, but
+// app spots are placed on the main island, so using the main-island envelope
+// keeps pins from drifting toward Udo/Gapado.
+const _westLng = 126.15;
 const _eastLng = 126.98;
-const _northLat = 33.62;
+const _northLat = 33.57;
 const _southLat = 33.20;
 
-const _mapLeft = 0.15;
-const _mapRight = 0.86;
+const _mapLeft = 0.16;
+const _mapRight = 0.84;
 const _mapTop = 0.29;
-const _mapBottom = 0.71;
+const _mapBottom = 0.70;
 
 Offset projectJejuLatLng(double lat, double lng, Size size) {
   final xRatio =

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>JejuFlow - Seongsan Ilchulbong</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-surface": "#31312c",
+                    "surface-bright": "#fcf9f2",
+                    "tertiary": "#a43d00",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "secondary-container": "#fdcdb7",
+                    "secondary": "#7a5645",
+                    "on-tertiary-fixed": "#360f00",
+                    "on-tertiary-container": "#bb4700",
+                    "on-primary-container": "#59735e",
+                    "surface": "#fcf9f2",
+                    "background": "#fcf9f2",
+                    "primary": "#4b6450",
+                    "on-secondary-container": "#795544",
+                    "on-primary-fixed-variant": "#334c3a",
+                    "error": "#ba1a1a",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#daf7dd",
+                    "tertiary-fixed": "#ffdbcd",
+                    "surface-dim": "#dcdad3",
+                    "on-surface-variant": "#444844",
+                    "on-secondary": "#ffffff",
+                    "surface-variant": "#e5e2dc",
+                    "tertiary-container": "#ffece5",
+                    "surface-tint": "#4b6450",
+                    "error-container": "#ffdad6",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed-variant": "#603f2f",
+                    "inverse-primary": "#b1ceb5",
+                    "tertiary-fixed-dim": "#ffb597",
+                    "surface-container-high": "#ebe8e1",
+                    "secondary-fixed": "#ffdbcb",
+                    "on-surface": "#1c1c18",
+                    "on-error-container": "#93000a",
+                    "surface-container-low": "#f6f3ed",
+                    "outline-variant": "#c5c7c2",
+                    "inverse-on-surface": "#f3f0ea",
+                    "surface-container-highest": "#e5e2dc",
+                    "primary-fixed": "#cdead0",
+                    "surface-container": "#f0eee7",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#072010",
+                    "secondary-fixed-dim": "#ebbca7",
+                    "on-secondary-fixed": "#2e1508",
+                    "on-background": "#1c1c18",
+                    "primary-fixed-dim": "#b1ceb5",
+                    "outline": "#757873"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "lg": "24px",
+                    "base": "8px",
+                    "gutter": "24px",
+                    "xxl": "48px",
+                    "margin": "32px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "sm": "8px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "h3": ["Montserrat"],
+                    "body-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "h1": ["Montserrat"],
+                    "h2": ["Montserrat"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h3": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "h1": ["48px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "h2": ["36px", {"lineHeight": "1.3", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hero-gradient {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 70%, rgba(252,249,242,1) 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+<!-- Top Navigation (Contextually Suppressed labels but functional interaction) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-stone-50/0 backdrop-blur-none pointer-events-none">
+<div class="flex items-center gap-4 pointer-events-auto">
+<button class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30 hover:bg-white/40 transition-all active:scale-95">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+</div>
+<div class="flex items-center gap-2 pointer-events-auto">
+<button class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30 hover:bg-white/40 transition-all active:scale-95">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</header>
+<!-- Hero Section -->
+<section class="relative w-full h-[530px] overflow-hidden">
+<img alt="Seongsan Ilchulbong" class="w-full h-full object-cover" data-alt="An expansive panoramic view of Seongsan Ilchulbong Peak in Jeju Island during a soft, golden sunrise. The emerald green volcanic crater rises majestically from the deep blue Pacific Ocean, illuminated by the warm, atmospheric morning light. The overall aesthetic is clean, natural, and serene, utilizing a palette of lush forest greens and soft oceanic blues to evoke a premium travel experience. Low-angle sunlight creates long shadows and highlights the rugged geological textures of the tuff cone." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAt_wcJgzP1Dg5tNS0Yo6JnlcYOwFhVdAq6_v1M9oDdfIqU66FFD3c-OofTmB-SvQIShhz7lRiziWZzpNrInJNSYrtMVMic0oatcxBNV0zShcug5DkRqBoelylN8w0pvqSDrV4qDrdURDixJP2HCrszWRkUIRkNyC2rMkLzKiu41HavZQuB0E3jDVIUv81pmPwdY4jlCNqF4Cfv_d-uRHhLdW-VTWplb3pmPnHPakOz3qYl4dknZhTudhGoMSWilVX17H6WOCywl4x9"/>
+<div class="absolute inset-0 hero-gradient"></div>
+</section>
+<!-- Content Canvas -->
+<main class="px-margin -mt-32 relative z-10 max-w-5xl mx-auto">
+<!-- Title Header -->
+<div class="mb-lg">
+<span class="inline-block px-3 py-1 rounded-full bg-primary-container text-on-primary-fixed-variant font-label-sm uppercase tracking-widest mb-base">UNESCO World Heritage</span>
+<h1 class="font-h1 text-h2 md:text-h1 text-on-surface mb-xs">Seongsan Ilchulbong</h1>
+<div class="flex items-center gap-3 text-on-surface-variant font-body-md opacity-80">
+<span class="font-semibold">Sunrise Peak</span>
+<span class="text-outline-variant">|</span>
+<span class="">성산일출봉</span>
+<span class="text-outline-variant">|</span>
+<span class="">城山日出峰</span>
+</div>
+</div>
+<!-- Info Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-xl">
+<!-- Weather Card -->
+<div class="bg-surface-container-low p-lg rounded-lg flex flex-col justify-between border border-white">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary text-3xl">wb_sunny</span>
+<span class="text-label-sm font-bold text-on-surface-variant">WEATHER TIP</span>
+</div>
+<div class="mt-md">
+<p class="font-h3 text-h3 text-on-surface">Sunny &amp; Windy</p>
+<p class="text-label-sm text-on-surface-variant mt-1">Light jacket recommended</p>
+</div>
+</div>
+<!-- Hours Card -->
+<div class="bg-surface-container-low p-lg rounded-lg flex flex-col justify-between border border-white">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary text-3xl">schedule</span>
+<span class="text-label-sm font-bold text-on-surface-variant">OPERATING HOURS</span>
+</div>
+<div class="mt-md">
+<p class="font-h3 text-h3 text-on-surface">07:30 - 19:00</p>
+<p class="text-label-sm text-on-surface-variant mt-1">Last admission 18:00</p>
+</div>
+</div>
+<!-- Fee Card -->
+<div class="bg-primary-container p-lg rounded-lg flex flex-col justify-between shadow-sm">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-on-primary-container text-3xl">payments</span>
+<span class="text-label-sm font-bold text-on-primary-container">ENTRANCE FEE</span>
+</div>
+<div class="mt-md">
+<p class="font-h3 text-h3 text-on-primary-container">5,000 KRW</p>
+<p class="text-label-sm text-on-primary-container opacity-80 mt-1">Adult standard</p>
+</div>
+</div>
+</div>
+<!-- Bus Access & Map Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-gutter items-stretch mb-xl">
+<div class="lg:col-span-2 bg-inverse-surface text-surface-bright p-lg rounded-lg flex flex-col justify-center">
+<div class="flex items-center gap-3 mb-md">
+<div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white">directions_bus</span>
+</div>
+<div>
+<h4 class="font-h3 text-[20px]">Transit Access</h4>
+<p class="text-label-sm text-surface-dim uppercase">Entrance Stop</p>
+</div>
+</div>
+<p class="font-body-md text-surface-dim">Take the Blue Bus 201 or 111. From the main entrance stop, it is a scenic <span class="text-white font-bold">15 min walk</span> through the village paths to the ticket office.</p>
+</div>
+<div class="lg:col-span-3 rounded-lg overflow-hidden h-64 lg:h-auto min-h-[300px] border border-surface-variant relative">
+<img alt="Map view" class="w-full h-full object-cover" data-alt="A clean, minimalist topographical map view of the Seongsan Ilchulbong area on Jeju Island. The map highlights a winding walking trail from a stylized bus stop icon to the peak's crater rim. The design uses a sophisticated palette of soft cream, muted olive greens, and subtle slate grays. This modern cartographic illustration emphasizes clarity and professional elegance, fitting perfectly within the Evergreen Modern brand aesthetic." data-location="Seongsan Ilchulbong" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvkPs04haiCVfZPD5oFyQBPWUOXSDNhGyyyir17L1D3fREB9aEUekJ9YH6nF1spicj7-gL0o9MUAUmOrbXAS415WunGNAsZgrbtjbyIc7eTLoWu2lyVDKGAUN5VPgEV_86HJQ05DcYE8eFVcxWTnxvdNvV69mT9NfrGnW7C3rFFe_JuMfGrW45aWYxhvjhjAu5sRqsAnGnftdeFxbJTa56lkq4USEROxCJ4eMsdrnwkAu6K9dZqtR1ZSHAZMxF-Tc9PPSxpFnp2qlS"/>
+<div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur shadow-md px-4 py-2 rounded-full flex items-center gap-2">
+<span class="w-2 h-2 bg-primary rounded-full"></span>
+<span class="text-label-sm font-bold text-on-surface">Walking Path Active</span>
+</div>
+</div>
+</div>
+<!-- About Section -->
+<section class="max-w-3xl mb-xxl">
+<h3 class="font-h2 text-h3 text-on-surface mb-md">Natural Wonder of Jeju</h3>
+<div class="space-y-md text-body-lg text-on-surface-variant">
+<p class="">Formed by hydrovolcanic eruptions upon a shallow seabed about 5,000 years ago, Seongsan Ilchulbong rises 182 meters above sea level. This dramatic tuff cone is world-renowned for its perfectly preserved bowl-like crater and breathtaking views of the sunrise over the East Sea.</p>
+<p class="">The climb to the summit consists of a well-maintained wooden stairway that weaves through unique rock formations, offering constant views of the surrounding Udo Island and the emerald waters that Jeju is famous for.</p>
+</div>
+<div class="mt-lg grid grid-cols-2 md:grid-cols-4 gap-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style='font-variation-settings: "FILL" 1;'>check_circle</span>
+<span class="text-label-sm font-bold text-on-surface">UNESCO Site</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style='font-variation-settings: "FILL" 1;'>check_circle</span>
+<span class="text-label-sm font-bold text-on-surface">Restrooms</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style='font-variation-settings: "FILL" 1;'>check_circle</span>
+<span class="text-label-sm font-bold text-on-surface">Gift Shop</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style='font-variation-settings: "FILL" 1;'>check_circle</span>
+<span class="text-label-sm font-bold text-on-surface">Parking</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Buttons Layer -->
+<div class="fixed bottom-margin left-0 w-full px-margin pointer-events-none z-50">
+<div class="max-w-5xl mx-auto flex items-center justify-between gap-4 pointer-events-auto justify-end"><div class="flex flex-col items-end gap-4 pointer-events-auto ml-auto">
+<!-- Hidden by default or revealed on interaction - represented here as the primary FAB -->
+<button class="w-14 h-14 rounded-full bg-primary text-on-primary shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all border border-primary/20">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div></div>
+</div>
+</body></html>

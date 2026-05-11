@@ -1,6 +1,6 @@
 name: jejuflow
 description: Jeju travel app — instant answer to "where to go right now by bus?"
-version: 1.0.0+1
+version: 1.0.1+2
 publish_to: none
 
 environment:
@@ -48,6 +48,8 @@ dependencies:
   collection: ^1.18.0
   webview_flutter: ^4.13.1
   webview_flutter_android: ^4.12.0
+  flutter_local_notifications: ^21.0.0
+  timezone: ^0.11.0
 
 dev_dependencies:
   flutter_test:

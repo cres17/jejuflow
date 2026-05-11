@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>JejuFlow - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-surface": "#31312c",
+                      "surface-bright": "#fcf9f2",
+                      "tertiary": "#a43d00",
+                      "on-tertiary-fixed-variant": "#7d2d00",
+                      "secondary-container": "#fdcdb7",
+                      "secondary": "#7a5645",
+                      "on-tertiary-fixed": "#360f00",
+                      "on-tertiary-container": "#bb4700",
+                      "on-primary-container": "#59735e",
+                      "surface": "#fcf9f2",
+                      "background": "#fcf9f2",
+                      "primary": "#4b6450",
+                      "on-secondary-container": "#795544",
+                      "on-primary-fixed-variant": "#334c3a",
+                      "error": "#ba1a1a",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#daf7dd",
+                      "tertiary-fixed": "#ffdbcd",
+                      "surface-dim": "#dcdad3",
+                      "on-surface-variant": "#444844",
+                      "on-secondary": "#ffffff",
+                      "surface-variant": "#e5e2dc",
+                      "tertiary-container": "#ffece5",
+                      "surface-tint": "#4b6450",
+                      "error-container": "#ffdad6",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-fixed-variant": "#603f2f",
+                      "inverse-primary": "#b1ceb5",
+                      "tertiary-fixed-dim": "#ffb597",
+                      "surface-container-high": "#ebe8e1",
+                      "secondary-fixed": "#ffdbcb",
+                      "on-surface": "#1c1c18",
+                      "on-error-container": "#93000a",
+                      "surface-container-low": "#f6f3ed",
+                      "outline-variant": "#c5c7c2",
+                      "inverse-on-surface": "#f3f0ea",
+                      "surface-container-highest": "#e5e2dc",
+                      "primary-fixed": "#cdead0",
+                      "surface-container": "#f0eee7",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed": "#072010",
+                      "secondary-fixed-dim": "#ebbca7",
+                      "on-secondary-fixed": "#2e1508",
+                      "on-background": "#1c1c18",
+                      "primary-fixed-dim": "#b1ceb5",
+                      "outline": "#757873"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "lg": "24px",
+                      "base": "8px",
+                      "gutter": "24px",
+                      "xxl": "48px",
+                      "margin": "32px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "sm": "8px"
+              },
+              "fontFamily": {
+                      "body-lg": ["Inter"],
+                      "h3": ["Montserrat"],
+                      "body-md": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "h1": ["Montserrat"],
+                      "h2": ["Montserrat"]
+              },
+              "fontSize": {
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "h3": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "h1": ["48px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                      "h2": ["36px", {"lineHeight": "1.3", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-stone-50/80 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200/50 shadow-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-900" data-icon="eco">eco</span>
+<h1 class="font-montserrat font-black tracking-tight text-xl text-emerald-900">JejuFlow</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-stone-600 hover:bg-stone-100/50 transition-colors p-2 rounded-full" data-icon="language">language</button>
+</div>
+</header>
+<main class="pt-24 px-margin max-w-screen-xl mx-auto space-y-lg">
+<!-- Weather Glassmorphism Section -->
+<section class="relative overflow-hidden rounded-lg p-lg glass-card shadow-sm border border-white/40">
+<div class="absolute -right-10 -top-10 w-48 h-48 bg-primary/10 rounded-full blur-3xl"></div>
+<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-md">
+<div>
+<p class="font-label-sm text-label-sm text-primary mb-1 uppercase tracking-widest">Current Weather</p>
+<h2 class="font-h2 text-h2 text-on-surface">Seogwipo: Rainy</h2>
+<div class="flex items-center gap-2 mt-2 text-primary-fixed-variant">
+<span class="material-symbols-outlined" data-icon="lightbulb" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+<p class="font-body-md text-body-md">It's raining! Check out these indoor alternatives.</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[64px] text-primary/40" data-icon="rainy">rainy</span>
+<div class="text-right">
+<p class="font-h2 text-h2">18°C</p>
+<p class="font-label-sm text-label-sm text-outline">Humidity: 88%</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Transit & Navigation Bento Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Bus Nearby minimalist card -->
+<section class="md:col-span-7 bg-surface-container-low p-lg rounded-lg shadow-sm border border-surface-variant flex flex-col justify-between group hover:border-primary/30 transition-all">
+<div class="flex justify-between items-start mb-md">
+<div>
+<h3 class="font-h3 text-h3 text-on-surface mb-1">Next Schedule</h3>
+<p class="font-label-sm text-label-sm text-outline">Upcoming Activity</p>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="w-16 h-16 rounded-full bg-primary-container flex flex-col items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-[24px]" data-icon="schedule">schedule</span>
+<span class="font-label-sm text-[10px] font-bold uppercase">2:30 PM</span>
+</div>
+<div>
+<p class="font-body-lg text-body-lg font-bold text-on-surface">Seongsan Ilchulbong Trek</p>
+<p class="font-body-md text-body-md text-outline">Take Bus 201 in 15 mins • Departure at 14:15</p>
+</div>
+</div>
+<button class="mt-lg w-full py-md bg-surface-container-highest rounded-full font-label-sm text-label-sm font-bold text-on-surface-variant hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2">View Full Itinerary
+<span class="material-symbols-outlined text-[18px]" data-icon="event_note">event_note</span></button>
+</section>
+<!-- Quick Navigation buttons -->
+<section class="md:col-span-5 grid grid-cols-1 gap-gutter">
+<button class="group relative overflow-hidden h-32 rounded-lg bg-emerald-900 text-white p-lg transition-transform active:scale-95 shadow-sm">
+<div class="absolute right-0 top-0 w-32 h-full opacity-20 group-hover:scale-110 transition-transform">
+<img alt="" class="w-full h-full object-cover" data-alt="A macro close-up of vibrant, steam-rising Korean local food, specifically Jeju black pork and seafood abalone stew, presented in an elegant stoneware bowl. The lighting is warm and cinematic, highlighting the organic textures and the deep emerald and earth-toned palette of a high-end restaurant. The atmosphere is inviting and sophisticated, reflecting the professional calm of the Evergreen Modern brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSUzUYmzYJRZ1go6uqFtgarcw58l_G8e-2yHH7hyp_CNPqmzg4lM0IxS9SlqcCraewhAJ1cR25OZ7HjaCjFfq_7bTX1X9ZLS6cEjhce3oY9OTk339QNMbuZ7PgfJt3OvU9Qa1VLW4RjIlcJfs6iZXFomKf0PDeifQ1HQ9HVs_BKcC8nYkuXhsLALj2yt_rlQ6rbf66bJjCC1BXzL3UFS9WIPwdeYw_E7rm1nij5wY8cKOoJuIcfxd5cN0whecRA4xbpafyhP1YcaMg"/>
+</div>
+<div class="relative z-10 flex flex-col items-start h-full justify-center">
+<span class="material-symbols-outlined text-[32px] mb-2" data-icon="restaurant">restaurant</span>
+<span class="font-h3 text-h3">Local Eats</span>
+</div>
+</button>
+<button class="group relative overflow-hidden h-32 rounded-lg bg-secondary text-white p-lg transition-transform active:scale-95 shadow-sm">
+<div class="absolute right-0 top-0 w-32 h-full opacity-20 group-hover:scale-110 transition-transform">
+<img alt="" class="w-full h-full object-cover" data-alt="A minimalist, top-down view of a modern stylized map of Jeju Island, featuring clean lines and organic shapes in warm taupe and soft off-white tones. The map is overlaid with elegant, thin emerald green travel routes and simple icons. The lighting is soft and even, creating a calm and professional corporate modern aesthetic that emphasizes reliability and precision." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNDNjYGzCStwgnu9W-UH4LD_LIWqn5_TZ30WhRDrkDWaWFzfCtlN42bR3FI4OFoG7W9HNFFAXK2coJl3UYsgOeFTJ4UOzua4r0_Hz7fHlJ4RwSLfahxmsuwdLypK3Mu7V8XNmoQsrUuUBkm77kZFMQNC5qlrDB-dnP7XOfGq6B4SMHnBwA2H2ld0K_nvXktGJIliYt5_2trkemMD6HIo-t51GFZ9REmdc-KecOa21DxMc198e4YeB-rKhAyPj6mBChDil-OU90w2jZ"/>
+</div>
+<div class="relative z-10 flex flex-col items-start h-full justify-center">
+<span class="material-symbols-outlined text-[32px] mb-2" data-icon="map">map</span>
+<span class="font-h3 text-h3">Map Guide</span>
+</div>
+</button>
+</section>
+</div>
+<!-- Indoor Attractions Horizontal Scroll -->
+<section class="space-y-md">
+<div class="flex justify-between items-end">
+<div>
+<h3 class="font-h3 text-h3 text-on-surface">추천 관광지</h3>
+<p class="font-body-md text-body-md text-outline">Perfect for a rainy day</p>
+</div>
+<button class="text-primary font-label-sm text-label-sm font-bold flex items-center gap-1 hover:underline">
+                    View All <span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<div class="flex overflow-x-auto hide-scrollbar gap-gutter -mx-margin px-margin pb-4">
+<!-- Card 1: Haenyeo Museum -->
+<div class="min-w-[280px] md:min-w-[340px] bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col border border-stone-100">
+<div class="h-48 w-full relative">
+<img alt="" class="w-full h-full object-cover" data-alt="A serene and culturally rich photograph of the Haenyeo Museum in Jeju, showcasing traditional diving gear and historical artifacts in a modern, minimalist gallery setting. The lighting is high-key and soft, illuminating the stone and wood textures of the exhibit. The color palette consists of warm neutrals and deep forest greens, evoking a sense of trust and professional calm in a contemporary elegant style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPwY3y6HM0ETRBzEt7naji1C616SBOXYMwQWXtLFsXL8ogl_HT6RZo-DytQgLfqcLeQoiJxorkPw9YL5psGeJ143kDmuGCMW8CygyvE_Y_-beP-fOZB4LLnBtLd25WY7NgrGvRFJ1NoTNMrqDx6hLZfkLan81SpSAMjQXFsoviH2iWHoviCqS47jfz2GQLd4fU0Ir2KwwNIc4RUGaI0S_w2jBZp2fRmtoCmWZ0CtLIFvZOO9QQn-M6SbkMeFSYt_96nnxcubytsbnj"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-tertiary text-[14px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-sm text-label-sm font-bold">4.8</span>
+</div>
+</div>
+<div class="p-md flex flex-col gap-2">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded-full bg-primary-container text-on-primary-container font-label-sm text-[10px] font-bold uppercase">Culture</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-[10px] font-bold uppercase">Museum</span>
+</div>
+<h4 class="font-h3 text-body-lg font-bold text-on-surface">Haenyeo Museum</h4>
+<p class="font-body-md text-label-sm text-outline">Learn about the legendary women divers of Jeju.</p>
+</div>
+</div>
+<!-- Card 2: Arte Museum -->
+<div class="min-w-[280px] md:min-w-[340px] bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col border border-stone-100">
+<div class="h-48 w-full relative">
+<img alt="" class="w-full h-full object-cover" data-alt="A striking digital installation at the Arte Museum in Jeju, featuring a massive, immersive floral-themed projection that fills a vast minimalist hall. The room is dark to let the vibrant oranges and deep emerald greens of the digital art pop. The style is technologically advanced and serene, using generous whitespace and modern precision to evoke contemporary elegance and reliability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBtdHzPX36yO_M8jX-GEy7419BjR86FPjNwwmGrz6oFdfhY7sl3iIe9imAFtFxhtwV63dlrs2ICEjqbowBLr-97u-xQLAfzpQNQxXmLZp_3mcy9FyQ-KsS0Sm7w5Q-y11tKNVM-rjUz08K4uoucLRyHE3unrPj7VU6DHjJDCA6-XFIZGqVbwb6JvmYC43TPFBm4gVGNT4E1dGh7T0NAj4jrrkXpqrEm0ribXkV3CgngoBKVO6K7Vo3G78Xsykvwko6LxtMmCaTATqz"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-tertiary text-[14px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-sm text-label-sm font-bold">4.8</span>
+</div>
+</div>
+<div class="p-md flex flex-col gap-2">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded-full bg-primary-container text-on-primary-container font-label-sm text-[10px] font-bold uppercase">Digital Art</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-[10px] font-bold uppercase">Immersive</span>
+</div>
+<h4 class="font-h3 text-body-lg font-bold text-on-surface">Arte Museum</h4>
+<p class="font-body-md text-label-sm text-outline">Experience breathtaking media art in a former factory.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-stone-50 border-t border-stone-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] rounded-t-lg">
+<!-- Home (Active) -->
+<button class="flex flex-col items-center justify-center bg-emerald-900 text-stone-50 rounded-full px-5 py-2 active:scale-90 duration-150 ease-in-out">
+<span class="material-symbols-outlined" data-icon="home_max" style="font-variation-settings: 'FILL' 1;">home_max</span>
+<span class="font-montserrat text-[11px] font-semibold">Home</span>
+</button>
+<!-- Explore -->
+<button class="flex flex-col items-center justify-center text-stone-400 px-5 py-2 hover:text-emerald-700 active:scale-90 duration-150 ease-in-out">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-montserrat text-[11px] font-semibold">Explore</span>
+</button>
+<!-- Transit -->
+<button class="flex flex-col items-center justify-center text-stone-400 px-5 py-2 hover:text-emerald-700 active:scale-90 duration-150 ease-in-out">
+<span class="material-symbols-outlined" data-icon="route">route</span>
+<span class="font-montserrat text-[11px] font-semibold">Route</span>
+</button>
+<!-- Settings -->
+<button class="flex flex-col items-center justify-center text-stone-400 px-5 py-2 hover:text-emerald-700 active:scale-90 duration-150 ease-in-out">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-montserrat text-[11px] font-semibold">Settings</span>
+</button>
+</nav>
+</body></html>

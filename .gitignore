@@ -5,6 +5,13 @@ node_modules/
 .expo/
 dist/
 web-build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+.idea/
+.claude/
+*.iml
 *.jks
 android/key.properties
 *.p8

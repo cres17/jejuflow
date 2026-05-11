@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>JejuFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font:'Outfit',-apple-system,sans-serif;
+  --bg:#F5F4F0; --surface:#FFFFFF; --sf2:#F0EEE9;
+  --t1:#111110; --t2:#6B6860; --t3:#B0ADA6;
+  --sep:#E8E6E1;
+  --accent:#2A7A4A;
+  --red:#D63B2A; --yellow:#C8920A; --green:#1F7A42; --blue:#1A5FA8;
+  --r:14px; --rlg:20px; --rpill:999px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;}
+html,body{height:100%;background:#1A1A1A;font-family:var(--font);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+
+/* ── Shell ── */
+.phone{width:390px;height:844px;background:var(--bg);border-radius:52px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 0 1px rgba(255,255,255,.12),0 0 0 10px #111,0 50px 120px rgba(0,0,0,.8);position:relative;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:36px;background:#111;border-radius:0 0 22px 22px;z-index:100;}
+.status{height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 10px;flex-shrink:0;}
+.status-t{font-size:15px;font-weight:600;color:var(--t1);}
+.status-i{font-size:12px;color:var(--t2);}
+
+/* ── Screens ── */
+.screens{flex:1;min-height:0;position:relative;overflow:hidden;}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity .2s,transform .2s;}
+.screen.active{opacity:1;pointer-events:all;transform:translateY(0);}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{display:none;}
+
+/* ── Tab bar ── */
+.tabbar{height:80px;flex-shrink:0;background:var(--surface);border-top:1px solid var(--sep);display:flex;align-items:flex-start;padding-top:10px;}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;background:none;border:none;font-family:var(--font);}
+.tab-icon{font-size:22px;line-height:1;}
+.tab-label{font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.2px;text-transform:uppercase;transition:color .15s;}
+.tab.active .tab-label{color:var(--accent);}
+.tab.active .tab-icon{filter:drop-shadow(0 0 5px var(--accent));}
+
+/* ── Atoms ── */
+.section-label{padding:18px 20px 8px;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);}
+.card{background:var(--surface);border-radius:var(--rlg);border:1px solid var(--sep);}
+.row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--sep);cursor:pointer;transition:background .12s;}
+.row:last-child{border-bottom:none;}
+.row:active{background:var(--sf2);}
+.row-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.row-main{flex:1;min-width:0;}
+.row-name{font-size:15px;font-weight:600;color:var(--t1);}
+.row-sub{font-size:12px;color:var(--t2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:var(--rpill);font-size:11px;font-weight:700;}
+.bg{background:#E6F4EC;color:var(--green);}
+.by{background:#FEF6E4;color:var(--yellow);}
+.br{background:#FCECEA;color:var(--red);}
+.bb{background:#E8F0FF;color:var(--blue);}
+.bgr{background:var(--sf2);color:var(--t2);}
+.btn{padding:14px;border-radius:var(--rpill);font-family:var(--font);font-size:15px;font-weight:700;border:none;cursor:pointer;transition:opacity .15s;width:100%;}
+.btn:active{opacity:.75;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-ghost{background:var(--sf2);color:var(--t2);border:1px solid var(--sep);}
+.btn-red{background:#FCECEA;color:var(--red);border:1px solid rgba(214,59,42,.2);}
+
+/* Sheet */
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,.35);z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.sheet{position:absolute;bottom:0;left:0;right:0;background:var(--surface);border-radius:24px 24px 0 0;padding:0 20px 32px;max-height:90%;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);}
+.sheet::-webkit-scrollbar{display:none;}
+.overlay.open .sheet{transform:translateY(0);}
+.sh-handle{width:36px;height:4px;background:var(--sep);border-radius:var(--rpill);margin:12px auto 18px;}
+.sh-close{width:100%;margin-top:16px;padding:14px;border-radius:var(--rpill);background:var(--accent);color:#fff;font-family:var(--font);font-size:15px;font-weight:700;border:none;cursor:pointer;}
+
+/* ═══════════════════════════════
+   ① NOW TAB
+═══════════════════════════════ */
+
+/* Situation card — hero */
+.situation-card{margin:12px 16px 0;border-radius:var(--rlg);overflow:hidden;border:1px solid var(--sep);}
+.sit-header{padding:16px 18px 14px;background:var(--accent);transition:background .6s;}
+.sit-header-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.sit-wx-label{font-size:13px;font-weight:600;color:rgba(255,255,255,.8);}
+.sit-temp{font-size:48px;font-weight:300;color:#fff;letter-spacing:-3px;line-height:1;}
+.sit-loc{font-size:12px;color:rgba(255,255,255,.65);margin-top:4px;font-weight:500;}
+.sit-advice{font-size:14px;color:rgba(255,255,255,.92);margin-top:10px;font-weight:500;line-height:1.5;}
+.sit-warn{margin-top:10px;background:rgba(0,0,0,.25);border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;color:#fff;display:none;}
+.sit-warn.show{display:block;}
+.sit-meta{margin-top:10px;font-size:11px;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:5px;}
+.ldot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.7);display:inline-block;animation:lp 2s infinite;}
+@keyframes lp{0%,100%{opacity:.7}50%{opacity:.2}}
+
+/* Answer block — "지금 여기서 갈 수 있는 곳" */
+.answer-block{background:var(--surface);padding:14px 18px;}
+.ab-question{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);margin-bottom:10px;}
+.ab-spot{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--sep);cursor:pointer;transition:background .12s;}
+.ab-spot:last-child{border-bottom:none;}
+.ab-spot:active{background:var(--sf2);}
+.ab-emo{font-size:28px;flex-shrink:0;width:44px;text-align:center;}
+.ab-info{flex:1;min-width:0;}
+.ab-name{font-size:15px;font-weight:700;color:var(--t1);}
+.ab-how{font-size:12px;color:var(--t2);margin-top:3px;}
+.ab-right{flex-shrink:0;text-align:right;}
+.ab-arrive{font-size:18px;font-weight:700;line-height:1;}
+.ab-arrive-unit{font-size:10px;color:var(--t3);margin-top:2px;}
+
+/* Next bus urgency strip */
+.bus-strip{margin:10px 16px 0;border-radius:var(--r);overflow:hidden;border:1px solid var(--sep);}
+.bs-header{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+.bs-title{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);}
+.bs-refresh{background:none;border:none;font-size:12px;color:var(--t3);cursor:pointer;font-family:var(--font);font-weight:600;padding:4px 8px;border-radius:20px;border:1px solid var(--sep);}
+.bus-row{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--surface);border-top:1px solid var(--sep);}
+.bus-badge{width:48px;height:48px;border-radius:10px;background:var(--sf2);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.bus-route{font-size:13px;font-weight:800;color:var(--t1);letter-spacing:-.3px;}
+.bus-type{font-size:9px;color:var(--t3);font-weight:600;letter-spacing:.3px;}
+.bus-dest{flex:1;min-width:0;}
+.bus-dest-name{font-size:14px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bus-stops{font-size:11px;color:var(--t2);margin-top:2px;}
+.bus-mins{text-align:right;flex-shrink:0;}
+.bus-num{font-size:26px;font-weight:700;letter-spacing:-1px;line-height:1;}
+.bus-unit{font-size:10px;color:var(--t3);}
+.taxi-rec{background:#FEF6E4;padding:12px 16px;border-top:1px solid #F5E09A;display:flex;align-items:center;gap:10px;display:none;}
+.taxi-rec.show{display:flex;}
+.taxi-rec-text{flex:1;font-size:13px;color:#7A5A00;font-weight:500;line-height:1.4;}
+.taxi-rec-apps{display:flex;gap:6px;flex-shrink:0;}
+.taxi-app{padding:5px 10px;border-radius:20px;background:#fff;border:1px solid #F5E09A;font-size:11px;font-weight:700;color:#7A5A00;cursor:pointer;}
+
+/* Weather change alert */
+.wx-change-banner{margin:10px 16px 0;padding:14px 16px;background:#FCECEA;border:1px solid rgba(214,59,42,.2);border-radius:var(--r);}
+.wxb-title{font-size:14px;font-weight:700;color:var(--red);}
+.wxb-desc{font-size:13px;color:var(--t2);margin-top:4px;line-height:1.5;}
+.wxb-action{margin-top:12px;display:flex;gap:8px;}
+.wxb-btn{padding:9px 16px;border-radius:var(--rpill);font-family:var(--font);font-size:13px;font-weight:700;border:none;cursor:pointer;}
+.wxb-btn-primary{background:var(--red);color:#fff;}
+.wxb-btn-ghost{background:#fff;color:var(--t2);border:1px solid var(--sep);}
+.wx-change-banner{display:none;}
+.wx-change-banner.show{display:block;}
+
+/* ═══════════════════════════════
+   ② MOVE TAB
+═══════════════════════════════ */
+.move-header{padding:16px 20px 0;flex-shrink:0;}
+.move-title{font-size:28px;font-weight:800;letter-spacing:-.7px;color:var(--t1);}
+.move-sub{font-size:14px;color:var(--t2);margin-top:4px;line-height:1.5;}
+
+/* Destination picker */
+.dest-search{margin:14px 16px 0;display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--sep);border-radius:var(--r);padding:12px 14px;cursor:pointer;transition:border-color .2s;}
+.dest-search:hover{border-color:var(--accent);}
+.dest-search-text{flex:1;font-size:15px;color:var(--t3);font-family:var(--font);}
+.dest-search-text.selected{color:var(--t1);font-weight:600;}
+
+/* Route result card */
+.route-result{margin:12px 16px 0;border-radius:var(--rlg);border:1px solid var(--sep);overflow:hidden;display:none;}
+.route-result.show{display:block;}
+
+.rr-summary{padding:16px 18px;background:var(--accent);transition:background .5s;}
+.rr-dest{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.7);}
+.rr-name{font-size:20px;font-weight:700;color:#fff;margin-top:2px;letter-spacing:-.3px;}
+.rr-stats{display:flex;gap:16px;margin-top:12px;}
+.rr-stat{text-align:center;}
+.rr-stat-num{font-size:24px;font-weight:700;color:#fff;letter-spacing:-.5px;line-height:1;}
+.rr-stat-lbl{font-size:10px;color:rgba(255,255,255,.65);margin-top:2px;font-weight:500;}
+.rr-arrive{margin-left:auto;text-align:right;}
+.rr-arrive-time{font-size:28px;font-weight:300;color:#fff;letter-spacing:-1px;line-height:1;}
+.rr-arrive-lbl{font-size:10px;color:rgba(255,255,255,.65);margin-top:2px;}
+
+/* Step-by-step route */
+.rr-steps{background:var(--surface);padding:4px 0;}
+.step{display:flex;gap:0;padding:0 18px;}
+.step-left{display:flex;flex-direction:column;align-items:center;width:32px;flex-shrink:0;padding-top:14px;}
+.step-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--accent);background:#fff;flex-shrink:0;transition:border-color .5s,background .5s;}
+.step-dot.filled{background:var(--accent);}
+.step-line{width:2px;flex:1;min-height:20px;background:var(--sep);margin:4px 0;}
+.step-body{flex:1;padding:12px 0 12px 10px;border-bottom:1px solid var(--sep);}
+.step:last-child .step-body{border-bottom:none;}
+.step-type{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--t3);margin-bottom:4px;}
+.step-main{font-size:15px;font-weight:600;color:var(--t1);line-height:1.3;}
+.step-detail{font-size:12px;color:var(--t2);margin-top:4px;line-height:1.5;}
+.step-time{font-size:13px;font-weight:700;color:var(--t2);margin-top:4px;}
+
+/* Weather warning on route */
+.rr-wx-warn{margin:0;padding:12px 18px;background:#FEF6E4;border-top:1px solid #F5E09A;display:none;}
+.rr-wx-warn.show{display:flex;align-items:flex-start;gap:10px;}
+.rr-wx-warn-text{font-size:13px;color:#7A5A00;line-height:1.5;}
+
+/* Alternative mode button */
+.rr-alt{padding:14px 18px;border-top:1px solid var(--sep);background:var(--surface);display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.rr-alt:active{background:var(--sf2);}
+.rr-alt-label{font-size:14px;font-weight:600;color:var(--t1);}
+.rr-alt-sub{font-size:12px;color:var(--t2);margin-top:2px;}
+
+/* Spot picker grid */
+.spot-picker{padding:0 16px 24px;}
+.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:0;}
+.sp-item{background:var(--surface);border:1px solid var(--sep);border-radius:var(--r);padding:14px 12px;cursor:pointer;transition:all .15s;text-align:left;}
+.sp-item:active{border-color:var(--accent);background:var(--sf2);}
+.sp-item.selected{border-color:var(--accent);background:#EAF4EE;}
+.sp-emo{font-size:28px;margin-bottom:8px;}
+.sp-name{font-size:13px;font-weight:700;color:var(--t1);line-height:1.3;}
+.sp-sub{font-size:11px;color:var(--t2);margin-top:3px;}
+
+/* ═══════════════════════════════
+   ③ ROUTES TAB
+═══════════════════════════════ */
+.routes-header{padding:16px 20px 0;flex-shrink:0;}
+.routes-title{font-size:28px;font-weight:800;letter-spacing:-.7px;color:var(--t1);}
+
+/* Saved route cards */
+.saved-route-card{background:var(--surface);border:1px solid var(--sep);border-radius:var(--rlg);margin:0 16px 12px;overflow:hidden;}
+.src-header{padding:16px;background:var(--accent);display:flex;justify-content:space-between;align-items:flex-start;transition:background .5s;}
+.src-name{font-size:17px;font-weight:700;color:#fff;}
+.src-meta{font-size:12px;color:rgba(255,255,255,.7);margin-top:4px;}
+.src-badges{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.src-badge{padding:3px 10px;border-radius:var(--rpill);background:rgba(255,255,255,.15);font-size:11px;font-weight:600;color:#fff;}
+.src-stops{padding:8px 0;}
+.src-stop-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--sep);}
+.src-stop-row:last-child{border-bottom:none;}
+.src-stop-num{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;transition:background .5s;}
+.src-stop-emo{font-size:18px;flex-shrink:0;}
+.src-stop-info{flex:1;min-width:0;}
+.src-stop-name{font-size:14px;font-weight:600;color:var(--t1);}
+.src-stop-how{font-size:11px;color:var(--t2);margin-top:2px;}
+.src-conn{padding:2px 16px 2px 43px;font-size:11px;color:var(--t3);display:flex;align-items:center;gap:6px;}
+.src-conn-line{width:1px;height:16px;background:var(--sep);}
+.src-actions{display:flex;gap:8px;padding:14px 16px;border-top:1px solid var(--sep);}
+.src-btn{flex:1;padding:11px;border-radius:var(--rpill);font-family:var(--font);font-size:13px;font-weight:700;border:none;cursor:pointer;}
+.src-btn-p{background:var(--accent);color:#fff;}
+.src-btn-g{background:var(--sf2);color:var(--t2);}
+
+/* Build new CTA */
+.build-cta{margin:0 16px 24px;padding:18px;background:var(--surface);border:1.5px dashed var(--sep);border-radius:var(--rlg);text-align:center;cursor:pointer;transition:border-color .15s;}
+.build-cta:hover{border-color:var(--accent);}
+.build-cta-icon{font-size:32px;margin-bottom:8px;}
+.build-cta-title{font-size:15px;font-weight:700;color:var(--t1);}
+.build-cta-sub{font-size:13px;color:var(--t2);margin-top:4px;}
+
+/* Empty state */
+.empty{text-align:center;padding:48px 24px;color:var(--t3);}
+.empty-e{font-size:44px;margin-bottom:12px;}
+.empty-title{font-size:18px;font-weight:700;color:var(--t2);}
+.empty-sub{font-size:13px;margin-top:6px;line-height:1.6;}
+
+/* Demo */
+.demo{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:6px;align-items:flex-end;z-index:999;}
+.dbtn{background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.75);font-family:var(--font);font-size:10px;font-weight:600;padding:6px 12px;border-radius:20px;cursor:pointer;backdrop-filter:blur(8px);letter-spacing:.4px;white-space:nowrap;}
+.dbtn:hover{background:#000;color:#fff;}
+.dlabel{font-size:9px;color:rgba(255,255,255,.2);letter-spacing:2px;text-align:right;}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <div class="notch"></div>
+  <div class="status">
+    <span class="status-t" id="clock">9:41</span>
+    <span class="status-i">▲ ● ▮▮▮</span>
+  </div>
+
+  <div class="screens">
+
+    <!-- ══════════════════════════════
+         ① NOW
+    ══════════════════════════════ -->
+    <div class="screen active" id="s-now">
+      <div class="scroll">
+
+        <!-- Situation card -->
+        <div class="situation-card">
+          <div class="sit-header" id="sit-header">
+            <div class="sit-header-top">
+              <div>
+                <div class="sit-wx-label" id="sit-wx-label">☀️ Clear</div>
+                <div class="sit-loc" id="sit-loc">📍 Locating…</div>
+              </div>
+              <div class="sit-temp" id="sit-temp">18°</div>
+            </div>
+            <div class="sit-advice"  id="sit-advice">Perfect for outdoor sightseeing today.</div>
+            <div class="sit-warn"    id="sit-warn"></div>
+            <div class="sit-meta"><span class="ldot"></span><span id="sit-at">just now</span></div>
+          </div>
+          <!-- THE ANSWER -->
+          <div class="answer-block">
+            <div class="ab-question">Go now — reachable by next bus</div>
+            <div id="answer-spots"></div>
+          </div>
+        </div>
+
+        <!-- Weather change alert -->
+        <div class="wx-change-banner" id="wx-banner">
+          <div class="wxb-title" id="wxb-title">⛈ Storm expected in 2 hours</div>
+          <div class="wxb-desc" id="wxb-desc">Your current route includes outdoor spots. Switch to indoor alternatives?</div>
+          <div class="wxb-action">
+            <button class="wxb-btn wxb-btn-primary" onclick="swapToIndoor()">Switch Route</button>
+            <button class="wxb-btn wxb-btn-ghost"   onclick="dismissBanner()">Keep Route</button>
+          </div>
+        </div>
+
+        <!-- Next buses -->
+        <div class="bus-strip">
+          <div class="bs-header">
+            <div class="bs-title">Next Buses</div>
+            <button class="bs-refresh" id="refresh-btn" onclick="refreshBuses(this)">↻ Refresh</button>
+          </div>
+          <div id="bus-rows"></div>
+          <div class="taxi-rec" id="taxi-rec">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#7A5A00">🚖 Taxi recommended</div>
+              <div class="taxi-rec-text" style="margin-top:2px">All buses 30+ min away. Taxi is faster.</div>
+            </div>
+            <div class="taxi-rec-apps">
+              <div class="taxi-app">Kakao</div>
+              <div class="taxi-app">IM</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:24px"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         ② MOVE
+    ══════════════════════════════ -->
+    <div class="screen" id="s-move">
+      <div class="move-header">
+        <div class="move-title">Where to?</div>
+        <div class="move-sub">Pick a destination — we'll plan the route.</div>
+      </div>
+
+      <!-- Destination picker -->
+      <div class="dest-search" id="dest-search" onclick="openPicker()">
+        <span style="font-size:20px">📍</span>
+        <span class="dest-search-text" id="dest-text">Choose a destination…</span>
+        <span style="font-size:14px;color:var(--t3)">›</span>
+      </div>
+
+      <div class="scroll">
+        <!-- Route result (hidden until dest selected) -->
+        <div class="route-result" id="route-result">
+          <div class="rr-summary" id="rr-summary">
+            <div class="rr-dest">Destination</div>
+            <div class="rr-name" id="rr-name">—</div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:12px;">
+              <div class="rr-stats">
+                <div class="rr-stat">
+                  <div class="rr-stat-num" id="rr-total-time">—</div>
+                  <div class="rr-stat-lbl">min total</div>
+                </div>
+                <div class="rr-stat" style="margin-left:16px">
+                  <div class="rr-stat-num" id="rr-bus-wait">—</div>
+                  <div class="rr-stat-lbl">min wait</div>
+                </div>
+              </div>
+              <div class="rr-arrive">
+                <div class="rr-arrive-time" id="rr-arrive-time">—</div>
+                <div class="rr-arrive-lbl">estimated arrival</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weather warning on this route -->
+          <div class="rr-wx-warn" id="rr-wx-warn">
+            <span style="font-size:18px;flex-shrink:0">⚠️</span>
+            <div class="rr-wx-warn-text" id="rr-wx-warn-text"></div>
+          </div>
+
+          <!-- Steps -->
+          <div class="rr-steps" id="rr-steps"></div>
+
+          <!-- Alt transport -->
+          <div class="rr-alt" id="rr-alt-taxi">
+            <div>
+              <div class="rr-alt-label">🚖 Take a taxi instead</div>
+              <div class="rr-alt-sub" id="rr-taxi-sub">~12 min · ₩8,000–12,000</div>
+            </div>
+            <span style="color:var(--t3);font-size:14px">›</span>
+          </div>
+
+          <!-- Save to routes -->
+          <div style="padding:14px 16px;border-top:1px solid var(--sep)">
+            <button class="btn btn-primary" onclick="saveThisRoute()" id="save-route-btn">💾 Save This Route</button>
+          </div>
+        </div>
+
+        <!-- Spot picker (shown before dest selected) -->
+        <div id="spot-picker-wrap">
+          <div class="section-label">Popular Destinations</div>
+          <div class="spot-picker">
+            <div class="sp-grid" id="sp-grid"></div>
+          </div>
+        </div>
+
+        <div style="height:24px"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         ③ ROUTES (saved)
+    ══════════════════════════════ -->
+    <div class="screen" id="s-routes">
+      <div class="routes-header">
+        <div class="routes-title">My Routes</div>
+      </div>
+      <div class="scroll">
+        <div class="section-label" id="saved-label">Saved</div>
+        <div id="saved-routes-list"></div>
+        <div class="build-cta" onclick="goTab('move',document.querySelectorAll('.tab')[1])">
+          <div class="build-cta-icon">✦</div>
+          <div class="build-cta-title">Plan a New Route</div>
+          <div class="build-cta-sub">Pick a destination and we'll handle the rest</div>
+        </div>
+        <div style="height:24px"></div>
+      </div>
+    </div>
+
+  </div><!-- /screens -->
+
+  <!-- Tab bar -->
+  <div class="tabbar">
+    <button class="tab active" onclick="goTab('now',this)">
+      <span class="tab-icon">⚡</span>
+      <span class="tab-label">Now</span>
+    </button>
+    <button class="tab" onclick="goTab('move',this)">
+      <span class="tab-icon">🗺</span>
+      <span class="tab-label">Move</span>
+    </button>
+    <button class="tab" onclick="goTab('routes',this)">
+      <span class="tab-icon">📋</span>
+      <span class="tab-label">Routes</span>
+    </button>
+  </div>
+
+  <!-- Sheet (destination picker / spot detail) -->
+  <div class="overlay" id="overlay" onclick="closeSheet()">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sh-handle"></div>
+      <div id="sheet-content"></div>
+      <button class="sh-close" onclick="closeSheet()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- Demo controls -->
+<div class="demo">
+  <div class="dlabel">DEMO</div>
+  <button class="dbtn" onclick="nextWeather()">🌤 Weather</button>
+  <button class="dbtn" onclick="nextTime()">🕐 Time of Day</button>
+  <button class="dbtn" onclick="cycleRegion()">📍 Region</button>
+  <button class="dbtn" onclick="simulateBadWeather()">⛈ Weather Alert</button>
+</div>
+
+<script>
+/* ─── Spot palette ─── */
+const PAL = {
+  'seongsan-ilchulbong':{ bg:'#2A1C08', accent:'#D4922A' },
+  'hallim-park':        { bg:'#0E2410', accent:'#4E9848' },
+  'manjanggul-cave':    { bg:'#160C1C', accent:'#8A58A8' },
+  'cheonjiyeon-falls':  { bg:'#082030', accent:'#2898C0' },
+  'hyeopjae-beach':     { bg:'#062232', accent:'#00B8A8' },
+  'seopjikoji':         { bg:'#201800', accent:'#C8A018' },
+  'haenyeo-museum':     { bg:'#08141E', accent:'#2878B0' },
+  'bijarim-forest':     { bg:'#101A08', accent:'#70982C' },
+  'sangumburi':         { bg:'#1A1408', accent:'#C09038' },
+  'yongduam-rock':      { bg:'#0C0C0E', accent:'#7890A8' },
+  'aqua-planet':        { bg:'#041018', accent:'#0870C0' },
+  'eco-land':           { bg:'#0E1C08', accent:'#58A030' },
+  'teddy-bear-museum':  { bg:'#1A0E08', accent:'#C06030' },
+};
+
+/* ─── Weather accents by time ─── */
+const WX_ACCENT = {
+  clear:{ morning:'#2A7A4A', noon:'#1876A8', afternoon:'#2A7A4A', evening:'#B86820', night:'#3848A8' },
+  cloudy:'#6878A0', rain:'#3860A8', windy:'#1890A0', storm:'#C82828',
+};
+
+const WX_INFO = {
+  clear:  { icon:'☀️', label:'Clear',       temp:18, advice:'Great conditions — all spots accessible by bus.', warn:null,  wind:3,  bad:false },
+  cloudy: { icon:'☁️', label:'Cloudy',      temp:15, advice:'Comfortable for both indoor and outdoor spots.',  warn:null,  wind:5,  bad:false },
+  rain:   { icon:'🌧', label:'Rain',         temp:12, advice:'Rain today — indoor spots recommended.',          warn:'⚠️ Slippery paths at outdoor spots', wind:8,  bad:true },
+  windy:  { icon:'💨', label:'Strong Wind', temp:14, advice:'Coastal spots are dangerous. Stay inland.',       warn:'⚠️ Wind advisory — coastal areas unsafe', wind:16, bad:true },
+  storm:  { icon:'⛈', label:'Storm',         temp:10, advice:'Stay indoors. No outdoor activities today.',      warn:'🚨 Storm warning — outdoor activities suspended', wind:22, bad:true },
+};
+
+const SPOTS = [
+  { id:'seongsan-ilchulbong', e:'🌋', name:'Seongsan Sunrise Peak', cat:'outdoor', sub:'UNESCO · Volcanic crater',   region:'seogwipo',  stop:'Seongsan Port',    stopId:'JJ-201', bus:'181',   walk:5,  busWait:5,  fee:5000,  hours:'07:00–20:00', altId:'aqua-planet' },
+  { id:'hallim-park',         e:'🌸', name:'Hallim Park',           cat:'outdoor', sub:'Subtropical garden',         region:'jeju-city', stop:'Hallim Terminal',  stopId:'JJ-101', bus:'202',   walk:3,  busWait:21, fee:14000, hours:'08:30–18:00', altId:'manjanggul-cave' },
+  { id:'manjanggul-cave',     e:'🕳', name:'Manjanggul Lava Tube',  cat:'indoor',  sub:"World's longest lava tube",  region:'jeju-city', stop:'Manjanggul Cave',  stopId:'JJ-102', bus:'710',   walk:2,  busWait:18, fee:4000,  hours:'09:00–18:00', altId:null },
+  { id:'cheonjiyeon-falls',   e:'💧', name:'Cheonjiyeon Waterfall', cat:'outdoor', sub:'Three-tiered falls · Free',  region:'seogwipo',  stop:'Cheonjiyeon',      stopId:'JJ-202', bus:'510',   walk:4,  busWait:7,  fee:0,     hours:'09:00–22:00', altId:'haenyeo-museum' },
+  { id:'seopjikoji',          e:'🌼', name:'Seopjikoji Cape',       cat:'outdoor', sub:'Canola fields & lighthouse', region:'seogwipo',  stop:'Seopjikoji',       stopId:'JJ-203', bus:'295',   walk:8,  busWait:35, fee:0,     hours:'All day',     altId:'haenyeo-museum' },
+  { id:'haenyeo-museum',      e:'🤿', name:'Haenyeo Museum',        cat:'indoor',  sub:'Female diver culture',       region:'seogwipo',  stop:'Haenyeo Museum',   stopId:'JJ-204', bus:'710',   walk:1,  busWait:14, fee:1100,  hours:'09:00–18:00', altId:null },
+  { id:'bijarim-forest',      e:'🌲', name:'Bijarim Forest',        cat:'outdoor', sub:"2,800-yr-old nutmeg grove",  region:'jeju-city', stop:'Bijarim Forest',   stopId:'JJ-103', bus:'710',   walk:4,  busWait:22, fee:0,     hours:'09:00–17:00', altId:'manjanggul-cave' },
+  { id:'aqua-planet',         e:'🦈', name:'Aqua Planet Jeju',      cat:'indoor',  sub:"Korea's largest aquarium",   region:'seogwipo',  stop:'Seongsan Port',    stopId:'JJ-201', bus:'295',   walk:7,  busWait:5,  fee:36400, hours:'10:00–19:00', altId:null },
+  { id:'eco-land',            e:'🚂', name:'Eco Land Theme Park',   cat:'both',    sub:'Train through Gotjawal',     region:'jeju-city', stop:'Eco Land',         stopId:'JJ-104', bus:'710',   walk:1,  busWait:15, fee:14000, hours:'08:30–18:00', altId:null },
+  { id:'hyeopjae-beach',      e:'🏝', name:'Hyeopjae Beach',        cat:'outdoor', sub:'Emerald water · White sand', region:'jeju-city', stop:'Hyeopjae Beach',   stopId:'JJ-105', bus:'202',   walk:3,  busWait:19, fee:0,     hours:'All day',     altId:'manjanggul-cave' },
+  { id:'teddy-bear-museum',   e:'🧸', name:'Teddy Bear Museum',     cat:'indoor',  sub:'Jungmun Resort',             region:'seogwipo',  stop:'Jungmun Resort',   stopId:'JJ-205', bus:'251',   walk:5,  busWait:18, fee:12000, hours:'09:00–19:00', altId:null },
+  { id:'sangumburi',          e:'🌾', name:'Sangumburi Crater',     cat:'outdoor', sub:'Dormant crater · 420 plants',region:'jeju-city', stop:'Sangumburi',       stopId:'JJ-106', bus:'710',   walk:5,  busWait:25, fee:3000,  hours:'08:30–17:30', altId:'manjanggul-cave' },
+];
+
+const BUS_DATA = {
+  'jeju-city': [
+    { route:'702', dest:'Jeju Airport → Seongsan', mins:7,  stops:3  },
+    { route:'201', dest:'Jeju City → Hallim',       mins:21, stops:8  },
+    { route:'701', dest:'Airport → Jungmun',        mins:39, stops:13 },
+  ],
+  seogwipo: [
+    { route:'181',   dest:'Seogwipo → Seongsan',    mins:5,  stops:2  },
+    { route:'251',   dest:'Seogwipo → Jungmun',     mins:18, stops:7  },
+    { route:'720-1', dest:'Seogwipo → Jeju City',   mins:42, stops:16 },
+  ],
+};
+
+/* ─── State ─── */
+const WX_C  = ['clear','cloudy','rain','windy','storm'];
+const TOD_C = ['morning','noon','afternoon','evening','night'];
+
+const S = {
+  tab:'now', wIdx:0, tIdx:0,
+  region:'jeju-city',
+  selectedDest:null,
+  savedRoutes:[],
+  bannerDismissed:false,
+  wxAt: Date.now(),
+};
+
+const cond  = () => WX_C[S.wIdx];
+const tod   = () => TOD_C[S.tIdx];
+const isBad = () => WX_INFO[cond()].bad;
+const byId  = id => SPOTS.find(x=>x.id===id);
+const fmt   = ms => { const d=Math.round((Date.now()-ms)/1000); if(d<10)return'just now'; if(d<60)return`${d}s ago`; if(d<3600)return`${Math.round(d/60)}m ago`; return`${Math.round(d/3600)}h ago`; };
+const toMoney = n => n>0?'₩'+n.toLocaleString():'Free';
+
+function wxAccent() {
+  const c=cond();
+  return c==='clear' ? (WX_ACCENT.clear[tod()]||WX_ACCENT.clear.morning) : WX_ACCENT[c]||'#2A7A4A';
+}
+
+/* ─── Color engine ─── */
+let _cf=false;
+function applyAccent(hex) {
+  if(_cf||!hex) return; _cf=true;
+  requestAnimationFrame(()=>{
+    _cf=false;
+    document.documentElement.style.setProperty('--accent',hex);
+    document.getElementById('sit-header').style.background=hex;
+    const rrs=document.getElementById('rr-summary');
+    if(rrs) rrs.style.background=hex;
+    const pc=document.getElementById('profile-card');
+    if(pc) pc.style.background=hex;
+    document.querySelectorAll('.src-header').forEach(el=>el.style.background=hex);
+    document.querySelectorAll('.rs-num,.src-stop-num').forEach(el=>el.style.background=hex);
+  });
+}
+
+/* ─── Clock ─── */
+function tick(){
+  const n=new Date();
+  document.getElementById('clock').textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+}
+setInterval(tick,15000); tick();
+
+function detectTOD(){const h=new Date().getHours();if(h>=5&&h<10)return 0;if(h>=10&&h<13)return 1;if(h>=13&&h<18)return 2;if(h>=18&&h<22)return 3;return 4;}
+
+/* ─── Tab ─── */
+function goTab(name,btn){
+  S.tab=name;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('s-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  else document.querySelectorAll('.tab')[['now','move','routes'].indexOf(name)].classList.add('active');
+  if(name==='now')    renderNow();
+  if(name==='move')   renderMove();
+  if(name==='routes') renderRoutes();
+}
+
+/* ═══════════════════════════════
+   NOW
+═══════════════════════════════ */
+function renderNow(){
+  const wi=WX_INFO[cond()];
+  const bad=isBad();
+  const acc=wxAccent();
+
+  document.getElementById('sit-wx-label').textContent = wi.icon+' '+wi.label;
+  document.getElementById('sit-temp').textContent     = wi.temp+'°';
+  document.getElementById('sit-advice').textContent   = wi.advice;
+  document.getElementById('sit-at').textContent       = fmt(S.wxAt);
+  const wn=document.getElementById('sit-warn');
+  wn.textContent=wi.warn||''; wn.className='sit-warn'+(wi.warn?' show':'');
+
+  applyAccent(acc);
+  updateLocation();
+  renderAnswerSpots();
+  renderBusRows();
+  updateWxBanner();
+}
+
+function updateLocation(){
+  const loc=S.region==='jeju-city'?'Jeju City':'Seogwipo';
+  document.getElementById('sit-loc').textContent='📍 '+loc;
+}
+
+function renderAnswerSpots(){
+  const bad=isBad();
+  const now=new Date();
+  const spots=SPOTS
+    .filter(s=>s.region===S.region)
+    .filter(s=>bad ? s.cat!=='outdoor' : s.cat!=='indoor')
+    .sort((a,b)=>(a.busWait+a.walk)-(b.busWait+b.walk))
+    .slice(0,3);
+
+  document.getElementById('answer-spots').innerHTML=spots.map(s=>{
+    const totalMin=s.busWait+s.walk;
+    const arriveDate=new Date(now.getTime()+totalMin*60000);
+    const arriveStr=String(arriveDate.getHours()).padStart(2,'0')+':'+String(arriveDate.getMinutes()).padStart(2,'0');
+    const col=totalMin<=15?'var(--green)':totalMin<=30?'var(--yellow)':'var(--t2)';
+    const p=PAL[s.id]||{accent:'#448844'};
+    return `<div class="ab-spot" onclick="selectAndGo('${s.id}')">
+      <div class="ab-emo">${s.e}</div>
+      <div class="ab-info">
+        <div class="ab-name">${s.name}</div>
+        <div class="ab-how">Bus <strong>${s.bus}</strong> · 🚌 ${s.busWait}m wait · 🚶 ${s.walk}m walk</div>
+      </div>
+      <div class="ab-right">
+        <div class="ab-arrive" style="color:${col}">${totalMin}min</div>
+        <div class="ab-arrive-unit">arrive ${arriveStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderBusRows(){
+  const buses=BUS_DATA[S.region];
+  const allLong=buses.every(b=>b.mins>30);
+  document.getElementById('bus-rows').innerHTML=buses.map(b=>{
+    const col=b.mins<=5?'var(--green)':b.mins<=20?'var(--yellow)':'var(--t3)';
+    return `<div class="bus-row">
+      <div class="bus-badge"><div class="bus-route">${b.route}</div><div class="bus-type">BUS</div></div>
+      <div class="bus-dest">
+        <div class="bus-dest-name">${b.dest}</div>
+        <div class="bus-stops">${b.stops} stops away</div>
+      </div>
+      <div class="bus-mins">
+        <div class="bus-num" style="color:${col}">${b.mins}</div>
+        <div class="bus-unit">min</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('taxi-rec').className='taxi-rec'+(allLong?' show':'');
+}
+
+function refreshBuses(btn){
+  btn.textContent='…';
+  setTimeout(()=>{ btn.textContent='↻ Refresh'; renderBusRows(); },900);
+}
+
+function updateWxBanner(){
+  const bad=isBad();
+  const el=document.getElementById('wx-banner');
+  if(!bad||S.bannerDismissed){ el.className='wx-change-banner'; return; }
+  document.getElementById('wxb-title').textContent = WX_INFO[cond()].icon+' Weather change — routes affected';
+  document.getElementById('wxb-desc').textContent  = 'Current conditions make outdoor spots difficult. Switch to indoor alternatives on your saved routes?';
+  el.className='wx-change-banner show';
+}
+
+function dismissBanner(){ S.bannerDismissed=true; document.getElementById('wx-banner').className='wx-change-banner'; }
+
+function swapToIndoor(){
+  dismissBanner();
+  // swap saved routes outdoor→indoor
+  S.savedRoutes=S.savedRoutes.map(r=>({
+    ...r,
+    stops:r.stops.map(sid=>{
+      const s=byId(sid);
+      if(s&&s.cat==='outdoor'&&s.altId) return s.altId;
+      return sid;
+    })
+  }));
+  openSheetContent('<div style="text-align:center;padding:12px 0"><div style="font-size:40px;margin-bottom:12px">✅</div><div style="font-size:18px;font-weight:700;color:var(--t1);margin-bottom:8px">Routes Updated</div><div style="font-size:14px;color:var(--t2);line-height:1.6">Outdoor stops replaced with indoor alternatives based on today\'s weather.</div></div>');
+}
+
+function selectAndGo(id){
+  S.selectedDest=byId(id);
+  goTab('move',document.querySelectorAll('.tab')[1]);
+}
+
+/* ═══════════════════════════════
+   MOVE
+═══════════════════════════════ */
+function renderMove(){
+  // spot picker grid
+  const bad=isBad();
+  const spots=SPOTS.filter(s=>s.region===S.region&&(bad?s.cat!=='outdoor':true)).slice(0,8);
+  document.getElementById('sp-grid').innerHTML=spots.map(s=>`
+    <div class="sp-item${S.selectedDest&&S.selectedDest.id===s.id?' selected':''}" onclick="selectDest('${s.id}')">
+      <div class="sp-emo">${s.e}</div>
+      <div class="sp-name">${s.name}</div>
+      <div class="sp-sub">${s.sub}</div>
+    </div>`).join('');
+
+  if(S.selectedDest) showRouteResult(S.selectedDest);
+  applyAccent(wxAccent());
+}
+
+function openPicker(){
+  const bad=isBad();
+  const spots=SPOTS.filter(s=>bad?s.cat!=='outdoor':true);
+  const html=`<div style="font-size:18px;font-weight:700;color:var(--t1);margin-bottom:14px">Choose Destination</div>`+
+    spots.map(s=>{
+      const p=PAL[s.id]||{accent:'#448844'};
+      const total=s.busWait+s.walk;
+      return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--sep);cursor:pointer" onclick="selectDest('${s.id}');closeSheet()">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(140deg,${PAL[s.id]?.bg||'#101010'},${PAL[s.id]?.bg||'#101010'}88);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${s.e}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:15px;font-weight:600;color:var(--t1)">${s.name}</div>
+          <div style="font-size:12px;color:var(--t2);margin-top:2px">${s.sub}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:17px;font-weight:700;color:${total<=20?'var(--green)':'var(--t2)'}">${total}m</div>
+          <div style="font-size:10px;color:var(--t3)">total</div>
+        </div>
+      </div>`;
+    }).join('');
+  openSheetContent(html);
+}
+
+function selectDest(id){
+  S.selectedDest=byId(id);
+  document.getElementById('dest-text').textContent=S.selectedDest.name;
+  document.getElementById('dest-text').className='dest-search-text selected';
+  // update grid selection
+  document.querySelectorAll('.sp-item').forEach(el=>{
+    el.classList.toggle('selected',el.onclick&&el.onclick.toString().includes(id));
+  });
+  showRouteResult(S.selectedDest);
+  closeSheet();
+}
+
+function showRouteResult(spot){
+  const bad=isBad();
+  const wi=WX_INFO[cond()];
+  const now=new Date();
+  const totalMin=spot.busWait+spot.walk;
+  const arriveDate=new Date(now.getTime()+totalMin*60000);
+  const arriveStr=String(arriveDate.getHours()).padStart(2,'0')+':'+String(arriveDate.getMinutes()).padStart(2,'0');
+  const acc=PAL[spot.id]?.accent||wxAccent();
+
+  document.getElementById('rr-name').textContent       = spot.name;
+  document.getElementById('rr-total-time').textContent = totalMin;
+  document.getElementById('rr-bus-wait').textContent   = spot.busWait;
+  document.getElementById('rr-arrive-time').textContent= arriveStr;
+  document.getElementById('rr-summary').style.background = acc;
+  document.getElementById('rr-taxi-sub').textContent   = `~${Math.round(totalMin*0.5)} min · ₩${Math.round(totalMin*600).toLocaleString()}–${Math.round(totalMin*900).toLocaleString()}`;
+
+  // Weather warning
+  const wxWarn=document.getElementById('rr-wx-warn');
+  if(bad && spot.cat==='outdoor'){
+    document.getElementById('rr-wx-warn-text').textContent=`${wi.icon} ${wi.label} today — this outdoor spot may be affected. ${spot.altId?'Consider '+byId(spot.altId)?.name+' as an indoor alternative.':''}`;
+    wxWarn.className='rr-wx-warn show';
+  } else {
+    wxWarn.className='rr-wx-warn';
+  }
+
+  // Steps
+  const steps=[
+    { type:'Start', icon:'📍', main:'Your location', detail:'Walk to nearest bus stop', time:'Now' },
+    { type:'Walk',  icon:'🚶', main:`Walk to ${spot.stop}`, detail:`~3 min walk`, time:'' },
+    { type:'Bus',   icon:'🚌', main:`Bus ${spot.bus}`, detail:`Wait ~${spot.busWait} min · ${spot.stops||4} stops`, time:`+${spot.busWait} min` },
+    { type:'Walk',  icon:'🚶', main:`Walk to ${spot.name}`, detail:`${spot.walk} min from stop`, time:`+${spot.walk} min` },
+    { type:'Arrive',icon:spot.e, main:spot.name, detail:`Open ${spot.hours} · Entry ${toMoney(spot.fee)}`, time:arriveStr },
+  ];
+
+  document.getElementById('rr-steps').innerHTML=steps.map((s,i)=>`
+    <div class="step">
+      <div class="step-left">
+        <div class="step-dot${i===0||i===steps.length-1?' filled':''}"></div>
+        ${i<steps.length-1?'<div class="step-line"></div>':''}
+      </div>
+      <div class="step-body">
+        <div class="step-type">${s.type}</div>
+        <div class="step-main">${s.main}</div>
+        <div class="step-detail">${s.detail}</div>
+        ${s.time?`<div class="step-time">${s.time}</div>`:''}
+      </div>
+    </div>`).join('');
+
+  document.getElementById('spot-picker-wrap').style.display='none';
+  document.getElementById('route-result').className='route-result show';
+  applyAccent(acc);
+}
+
+function saveThisRoute(){
+  if(!S.selectedDest) return;
+  const s=S.selectedDest;
+  const exists=S.savedRoutes.find(r=>r.id===s.id+'-route');
+  if(exists){ openSheetContent('<div style="text-align:center;padding:12px 0"><div style="font-size:36px;margin-bottom:10px">ℹ️</div><div style="font-size:16px;font-weight:700;color:var(--t1)">Already saved</div></div>'); return; }
+  const acc=PAL[s.id]?.accent||wxAccent();
+  S.savedRoutes.unshift({
+    id:s.id+'-route',
+    name:s.name,
+    accent:acc,
+    stops:[s.id],
+    date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}),
+    totalMin:s.busWait+s.walk,
+    fee:s.fee,
+  });
+  openSheetContent('<div style="text-align:center;padding:12px 0"><div style="font-size:40px;margin-bottom:12px">💾</div><div style="font-size:18px;font-weight:700;color:var(--t1);margin-bottom:8px">Route Saved!</div><div style="font-size:14px;color:var(--t2)">Find it in the Routes tab.</div></div>');
+  document.getElementById('save-route-btn').textContent='✓ Saved';
+  document.getElementById('save-route-btn').style.background='#E6F4EC';
+  document.getElementById('save-route-btn').style.color='var(--green)';
+}
+
+/* ═══════════════════════════════
+   ROUTES (saved)
+═══════════════════════════════ */
+function renderRoutes(){
+  const el=document.getElementById('saved-routes-list');
+  const label=document.getElementById('saved-label');
+  label.textContent=`Saved (${S.savedRoutes.length})`;
+  if(!S.savedRoutes.length){
+    el.innerHTML=`<div class="empty"><div class="empty-e">🗺</div><div class="empty-title">No saved routes yet</div><div class="empty-sub">Plan a route in the Move tab<br>and save it here.</div></div>`;
+    return;
+  }
+  el.innerHTML=S.savedRoutes.map(r=>{
+    const stops=r.stops.map(sid=>byId(sid)).filter(Boolean);
+    const bad=isBad();
+    const hasOutdoor=stops.some(s=>s.cat==='outdoor');
+    return `<div class="saved-route-card">
+      <div class="src-header" style="background:${r.accent}">
+        <div class="src-name">${r.name}</div>
+        <div class="src-meta">Saved ${r.date} · ${r.totalMin} min total</div>
+        <div class="src-badges">
+          <div class="src-badge">${toMoney(r.fee)}</div>
+          ${bad&&hasOutdoor?'<div class="src-badge" style="background:rgba(214,59,42,.3)">⚠️ Weather affected</div>':''}
+        </div>
+      </div>
+      <div class="src-stops">
+        ${stops.map((s,i)=>`
+          <div class="src-stop-row">
+            <div class="src-stop-num" style="background:${r.accent}">${i+1}</div>
+            <div class="src-stop-emo">${s.e}</div>
+            <div class="src-stop-info">
+              <div class="src-stop-name">${s.name}</div>
+              <div class="src-stop-how">🚌 Bus ${s.bus} · ${s.stop} · 🚶 ${s.walk}m</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="src-actions">
+        <button class="src-btn src-btn-p" onclick="useRoute('${r.id}')">🗺 Use Now</button>
+        <button class="src-btn src-btn-g" onclick="deleteRoute('${r.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+  applyAccent(wxAccent());
+}
+
+function useRoute(id){
+  const r=S.savedRoutes.find(x=>x.id===id);
+  if(!r||!r.stops.length) return;
+  const s=byId(r.stops[0]);
+  if(s){ S.selectedDest=s; goTab('move',document.querySelectorAll('.tab')[1]); }
+}
+
+function deleteRoute(id){
+  S.savedRoutes=S.savedRoutes.filter(r=>r.id!==id);
+  renderRoutes();
+}
+
+/* ─── Sheet ─── */
+function openSheetContent(html){
+  document.getElementById('sheet-content').innerHTML=html;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeSheet(){ document.getElementById('overlay').classList.remove('open'); }
+
+/* ─── Demo controls ─── */
+function nextWeather(){
+  S.wIdx=(S.wIdx+1)%5; S.wxAt=Date.now(); S.bannerDismissed=false;
+  if(S.tab==='now')    renderNow();
+  else if(S.tab==='move')  { applyAccent(wxAccent()); renderMove(); }
+  else if(S.tab==='routes'){ applyAccent(wxAccent()); renderRoutes(); }
+}
+function nextTime(){ S.tIdx=(S.tIdx+1)%5; applyAccent(wxAccent()); if(S.tab==='now') renderNow(); }
+function cycleRegion(){
+  S.region=S.region==='jeju-city'?'seogwipo':'jeju-city';
+  S.selectedDest=null;
+  document.getElementById('dest-text').textContent='Choose a destination…';
+  document.getElementById('dest-text').className='dest-search-text';
+  document.getElementById('route-result').className='route-result';
+  document.getElementById('spot-picker-wrap').style.display='';
+  if(S.tab==='now') renderNow();
+  else if(S.tab==='move') renderMove();
+}
+function simulateBadWeather(){
+  S.wIdx=4; S.wxAt=Date.now(); S.bannerDismissed=false;
+  if(S.tab==='now') renderNow();
+  else applyAccent(wxAccent());
+}
+
+/* ─── Geolocation ─── */
+if(navigator.geolocation){
+  navigator.geolocation.getCurrentPosition(pos=>{
+    S.region=pos.coords.latitude<33.38?'seogwipo':'jeju-city';
+    if(S.tab==='now') updateLocation(), renderAnswerSpots(), renderBusRows();
+  },()=>{},{timeout:8000,maximumAge:120000});
+}
+
+/* ─── Init ─── */
+S.tIdx=detectTOD();
+renderNow();
+</script>
+</body>
+</html>

@@ -194,41 +194,69 @@ class _BrowseViewState extends ConsumerState<_BrowseView>
           spot.nearestStop,
           ...spot.tags,
         ].join(' ').toLowerCase();
-        if (!haystack.contains(query)) return false;
+        if (!haystack.contains(query)) {
+          return false;
+        }
       }
-      if (f.kind == 'oreum' && !_isOreum(spot)) return false;
-      if (f.kind == 'spots' && _isOreum(spot)) return false;
+      if (f.kind == 'oreum' && !_isOreum(spot)) {
+        return false;
+      }
+      if (f.kind == 'spots' && _isOreum(spot)) {
+        return false;
+      }
       if (f.kind == 'spots' &&
           f.tourismStyle != 'all' &&
-          !_matchesTourismStyle(spot, f.tourismStyle)) return false;
-      if (f.kind == 'under30' && (spot.busWaitMinutes + spot.walkMinutes) > 30)
+          !_matchesTourismStyle(spot, f.tourismStyle)) {
         return false;
+      }
+      if (f.kind == 'under30' &&
+          (spot.busWaitMinutes + spot.walkMinutes) > 30) {
+        return false;
+      }
       if (f.kind == 'food' &&
           f.foodStyle != 'all' &&
-          !_matchesFoodStyle(spot, f.foodStyle)) return false;
+          !_matchesFoodStyle(spot, f.foodStyle)) {
+        return false;
+      }
       if (f.kind == 'cafe' &&
           f.cafeStyle != 'all' &&
-          !_matchesCafeStyle(spot, f.cafeStyle)) return false;
-      if (f.kind == 'oreum' && f.oreum == 'easy' && spot.walkMinutes > 20)
+          !_matchesCafeStyle(spot, f.cafeStyle)) {
         return false;
-      if (f.kind == 'oreum' && f.oreum == 'moderate' && spot.walkMinutes > 40)
+      }
+      if (f.kind == 'oreum' && f.oreum == 'easy' && spot.walkMinutes > 20) {
         return false;
+      }
+      if (f.kind == 'oreum' && f.oreum == 'moderate' && spot.walkMinutes > 40) {
+        return false;
+      }
       if (f.kind == 'oreum' &&
           f.oreum == 'sunrise' &&
-          !_matchesOreumStyle(spot, 'sunrise')) return false;
+          !_matchesOreumStyle(spot, 'sunrise')) {
+        return false;
+      }
       if (f.kind == 'oreum' &&
           f.oreum == 'crater' &&
-          !_matchesOreumStyle(spot, 'crater')) return false;
+          !_matchesOreumStyle(spot, 'crater')) {
+        return false;
+      }
       // '뷰/전망': 정상에서 바다·섬이 보이는 오름
       if (f.kind == 'oreum' &&
           f.oreum == 'view' &&
-          !_matchesOreumStyle(spot, 'view')) return false;
-      // '접근 쉬운': 버스 정류장 도보 10분 이내
-      if (f.kind == 'oreum' && f.oreum == 'accessible' && spot.walkMinutes > 10)
+          !_matchesOreumStyle(spot, 'view')) {
         return false;
+      }
+      // '접근 쉬운': 버스 정류장 도보 10분 이내
+      if (f.kind == 'oreum' &&
+          f.oreum == 'accessible' &&
+          spot.walkMinutes > 10) {
+        return false;
+      }
       return true;
     }).toList();
-    final routeDraft = ref.watch(routeDraftProvider);
+    final savedRouteSpotIds = ref.watch(savedRoutesProvider).maybeWhen(
+          data: (routes) => routes.map((route) => route.spotId).toSet(),
+          orElse: () => <String>{},
+        );
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -284,7 +312,7 @@ class _BrowseViewState extends ConsumerState<_BrowseView>
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Oreum filter: ${f.oreum}',
+                          '${_moveFilterText(lang, 'oreumDetails')}: ${_moveFilterText(lang, f.oreum)}',
                           style: GoogleFonts.inter(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
@@ -325,40 +353,46 @@ class _BrowseViewState extends ConsumerState<_BrowseView>
                         style: GoogleFonts.inter(color: AppColors.text2))
                   else
                     ...list.map(
-                      (spot) => _ExploreSpotRow(
-                          spot: spot,
-                          lang: lang,
-                          added: routeDraft.any((s) => s.id == spot.id),
-                          onHover: () {},
-                          onLeave: () {},
-                          onOpen: () => ref
-                              .read(selectedSpotProvider.notifier)
-                              .state = spot,
-                          onAdd: () {
-                            final draft = ref.read(routeDraftProvider);
-                            if (!draft.any((s) => s.id == spot.id)) {
-                              ref.read(routeDraftProvider.notifier).state = [
-                                ...draft,
-                                spot
-                              ];
-                            }
-                            final route = buildSavedRoute(spot, null,
-                                scheduledAt: DateTime.now());
-                            unawaited(
-                              ref.read(savedRoutesProvider.notifier).add(route),
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  _savedToTripsLabel(lang, DateTime.now()),
-                                  style: GoogleFonts.inter(
-                                      fontWeight: FontWeight.w800),
+                      (spot) {
+                        final added = savedRouteSpotIds.contains(spot.id);
+                        return _ExploreSpotRow(
+                            spot: spot,
+                            lang: lang,
+                            added: added,
+                            onHover: () {},
+                            onLeave: () {},
+                            onOpen: () => ref
+                                .read(selectedSpotProvider.notifier)
+                                .state = spot,
+                            onAdd: () {
+                              if (savedRouteSpotIds.contains(spot.id)) return;
+                              final draft = ref.read(routeDraftProvider);
+                              if (!draft.any((s) => s.id == spot.id)) {
+                                ref.read(routeDraftProvider.notifier).state = [
+                                  ...draft,
+                                  spot
+                                ];
+                              }
+                              final route = buildSavedRoute(spot, null,
+                                  scheduledAt: DateTime.now());
+                              unawaited(
+                                ref
+                                    .read(savedRoutesProvider.notifier)
+                                    .add(route),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    _savedToTripsLabel(lang, DateTime.now()),
+                                    style: GoogleFonts.inter(
+                                        fontWeight: FontWeight.w800),
+                                  ),
+                                  backgroundColor: AppColors.accent,
+                                  duration: const Duration(milliseconds: 1400),
                                 ),
-                                backgroundColor: AppColors.accent,
-                                duration: const Duration(milliseconds: 1400),
-                              ),
-                            );
-                          }),
+                              );
+                            });
+                      },
                     ),
                 ],
               ),
@@ -1000,10 +1034,10 @@ String _savedToTripsLabel(AppLanguage lang, DateTime date) {
   final m = date.month;
   final d = date.day;
   return switch (lang) {
-    AppLanguage.ko => '${m}월 ${d}일 일정에 추가했어요 ✓',
+    AppLanguage.ko => '$m월 $d일 일정에 추가했어요 ✓',
     AppLanguage.en => 'Added to $m/$d route ✓',
-    AppLanguage.ja => '${m}/${d}の旅程に追加しました ✓',
-    AppLanguage.zh => '已添加到${m}月${d}日行程 ✓',
+    AppLanguage.ja => '$m/$dの旅程に追加しました ✓',
+    AppLanguage.zh => '已添加到$m月$d日行程 ✓',
   };
 }
 
@@ -1158,6 +1192,59 @@ bool _matchesTourismStyle(Spot spot, String style) {
 }
 
 String _moveFilterText(AppLanguage lang, String key) {
+  if (lang == AppLanguage.zh) {
+    const labels = {
+      'filter': '筛选',
+      'attractions': '景点',
+      'filters': '筛选',
+      'placeType': '地点类型',
+      'attractionType': '景点类型',
+      'nature': '自然',
+      'beach': '海滩',
+      'culture': '文化',
+      'family': '亲子/家庭',
+      'food': '餐厅',
+      'cafe': '咖啡馆',
+      'oreum': '山丘',
+      'under30': '30分钟内',
+      'foodType': '餐厅类型',
+      'allFood': '全部餐厅',
+      'localFood': '济州本地美食',
+      'korean': '韩餐',
+      'chinese': '中餐',
+      'western': '西餐',
+      'japanese': '日餐',
+      'seafood': '海鲜',
+      'vegetarian': '素食/健康',
+      'cafeStyle': '咖啡馆风格',
+      'allCafes': '全部咖啡馆',
+      'dessert': '甜点',
+      'view': '海景 / 景观',
+      'roastery': '烘焙咖啡',
+      'brunch': '早午餐',
+      'traditional': '传统茶饮',
+      'unique': '独特/概念',
+      'mood': '氛围',
+      'all': '全部',
+      'outdoor': '户外',
+      'indoor': '室内',
+      'both': '皆可',
+      'scenic': '景观/自然',
+      'cave': '洞窟',
+      'oreumDetails': '山丘筛选',
+      'allOreum': '全部山丘',
+      'oreumEasy': '轻松步道（20分钟内）',
+      'oreumModerate': '中等难度（40分钟内）',
+      'oreumView': '海景与视野',
+      'oreumAccessible': '交通方便',
+      'easy': '轻松路线',
+      'sunrise': '日出景点',
+      'crater': '火山口',
+      'applyFilters': '应用筛选',
+      'searchHint': '搜索地点或关键词',
+    };
+    return labels[key] ?? key;
+  }
   final ko = {
     'filter': '필터',
     'attractions': '관광지',
@@ -1358,10 +1445,60 @@ String _moveFilterText(AppLanguage lang, String key) {
     'applyFilters': '应用筛选',
     'searchHint': '搜索地点、车站',
   };
+  const zhFixed = {
+    'filter': '筛选',
+    'attractions': '景点',
+    'filters': '筛选',
+    'placeType': '地点类型',
+    'attractionType': '景点类型',
+    'nature': '自然',
+    'beach': '海滩',
+    'culture': '文化',
+    'family': '亲子/家庭',
+    'food': '餐厅',
+    'cafe': '咖啡馆',
+    'oreum': '山丘',
+    'under30': '30分钟内',
+    'foodType': '餐厅类型',
+    'allFood': '全部餐厅',
+    'localFood': '济州本地美食',
+    'korean': '韩餐',
+    'chinese': '中餐',
+    'western': '西餐',
+    'japanese': '日餐',
+    'seafood': '海鲜',
+    'vegetarian': '素食/健康',
+    'cafeStyle': '咖啡馆风格',
+    'allCafes': '全部咖啡馆',
+    'dessert': '甜点',
+    'view': '海景 / 景观',
+    'roastery': '烘焙咖啡',
+    'brunch': '早午餐',
+    'traditional': '传统茶饮',
+    'unique': '独特/概念',
+    'mood': '氛围',
+    'all': '全部',
+    'outdoor': '户外',
+    'indoor': '室内',
+    'both': '皆可',
+    'scenic': '景观/自然',
+    'cave': '洞窟',
+    'oreumDetails': '山丘筛选',
+    'allOreum': '全部山丘',
+    'oreumEasy': '轻松步道（20分钟内）',
+    'oreumModerate': '中等难度（40分钟内）',
+    'oreumView': '海景与视野',
+    'oreumAccessible': '交通方便',
+    'easy': '轻松路线',
+    'sunrise': '日出景点',
+    'crater': '火山口',
+    'applyFilters': '应用筛选',
+    'searchHint': '搜索地点或关键词',
+  };
   return switch (lang) {
     AppLanguage.ko => ko[key] ?? en[key] ?? key,
     AppLanguage.ja => ja[key] ?? en[key] ?? key,
-    AppLanguage.zh => zh[key] ?? en[key] ?? key,
+    AppLanguage.zh => zhFixed[key] ?? zh[key] ?? en[key] ?? key,
     AppLanguage.en => en[key] ?? key,
   };
 }
@@ -1761,8 +1898,9 @@ class _ExploreSpotRow extends StatelessWidget {
                           ),
                         ),
                         if (added)
-                          const ClaudeChip(
-                              label: 'Added', tone: ClaudeChipTone.primary),
+                          ClaudeChip(
+                              label: _addedLabel(lang),
+                              tone: ClaudeChipTone.primary),
                       ],
                     ),
                     const SizedBox(height: 3),
@@ -2653,7 +2791,11 @@ class _SpotDetailScreenState extends ConsumerState<_SpotDetailScreen> {
         builder: (context, ref, _) {
           final draft = ref.watch(routeDraftProvider);
           final lang = ref.watch(appLanguageProvider);
-          final inDraft = draft.any((s) => s.id == widget.spot.id);
+          final savedRouteSpotIds = ref.watch(savedRoutesProvider).maybeWhen(
+                data: (routes) => routes.map((route) => route.spotId).toSet(),
+                orElse: () => <String>{},
+              );
+          final inRoute = savedRouteSpotIds.contains(widget.spot.id);
           return StatefulBuilder(
             builder: (context, setSheetState) => DraggableScrollableSheet(
               expand: false,
@@ -2728,7 +2870,8 @@ class _SpotDetailScreenState extends ConsumerState<_SpotDetailScreen> {
                   const SizedBox(height: 22),
                   ElevatedButton.icon(
                     onPressed: () async {
-                      if (!inDraft) {
+                      if (!inRoute &&
+                          !draft.any((s) => s.id == widget.spot.id)) {
                         ref.read(routeDraftProvider.notifier).state = [
                           ...draft,
                           widget.spot
@@ -2758,11 +2901,8 @@ class _SpotDetailScreenState extends ConsumerState<_SpotDetailScreen> {
                         );
                       }
                     },
-                    icon:
-                        Icon(inDraft ? Icons.check_rounded : Icons.add_rounded),
-                    label: Text(inDraft
-                        ? _updateRouteLabel(lang)
-                        : _addToRouteLabel(lang)),
+                    icon: const Icon(Icons.add_rounded),
+                    label: Text(_addToRouteLabel(lang)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.accent,
                       foregroundColor: Colors.white,
@@ -2817,7 +2957,7 @@ class _AddSpotInfoSummary extends ConsumerWidget {
         AppLanguage.ko => '무료',
         AppLanguage.en => 'Free',
         AppLanguage.ja => '無料',
-        AppLanguage.zh => '免費',
+        AppLanguage.zh => '免费',
       };
     }
     return '₩${spot.fee.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},')}';
@@ -2831,7 +2971,7 @@ class _AddSpotInfoSummary extends ConsumerWidget {
         AppLanguage.ko => '상시 개방',
         AppLanguage.en => 'Always open',
         AppLanguage.ja => '常時開放',
-        AppLanguage.zh => '全天開放',
+        AppLanguage.zh => '全天开放',
       };
     }
     if (raw == 'Check before visit') {
@@ -3016,11 +3156,50 @@ class _AddSpotInfoSummary extends ConsumerWidget {
       'traditional': '传统',
       'unique': '特色',
     };
+    const zhFixed = {
+      'UNESCO': 'UNESCO',
+      'sunrise': '日出',
+      'volcanic': '火山',
+      'garden': '庭园',
+      'cave': '洞窟',
+      'family': '家庭',
+      'beach': '海滩',
+      'free': '免费',
+      'swimming': '游泳',
+      'scenic': '景观',
+      'lighthouse': '灯塔',
+      'walking': '步行',
+      'indoor': '室内',
+      'culture': '文化',
+      'nature': '自然',
+      'forest': '森林',
+      'waterfall': '瀑布',
+      'aquarium': '水族馆',
+      'rain_ok': '雨天可去',
+      'photo': '拍照',
+      'coastal': '海岸',
+      'crater': '火山口',
+      'train': '小火车',
+      'eco': '生态',
+      'oreum': '山丘',
+      'gotjawal': '济州林地',
+      'bbq': '烤肉',
+      'seafood': '海鲜',
+      'korean': '韩餐',
+      'western': '西餐',
+      'japanese': '日餐',
+      'brunch': '早午餐',
+      'dessert': '甜点',
+      'view': '景观',
+      'roastery': '烘焙咖啡',
+      'traditional': '传统',
+      'unique': '特色',
+    };
     final result = switch (lang) {
       AppLanguage.ko => ko[tag],
       AppLanguage.en => en[tag],
       AppLanguage.ja => ja[tag],
-      AppLanguage.zh => zh[tag],
+      AppLanguage.zh => zhFixed[tag] ?? zh[tag],
     };
     // 번역이 없으면 null 반환 (태그 숨김)
     return result;
@@ -3372,6 +3551,14 @@ String _addToRouteLabel(AppLanguage lang) => switch (lang) {
       AppLanguage.zh => '添加到行程',
     };
 
+String _addedLabel(AppLanguage lang) => switch (lang) {
+      AppLanguage.ko => '추가됨',
+      AppLanguage.en => 'Added',
+      AppLanguage.ja => '追加済み',
+      AppLanguage.zh => '已添加',
+    };
+
+// ignore: unused_element
 String _updateRouteLabel(AppLanguage lang) => switch (lang) {
       AppLanguage.ko => '일정 업데이트',
       AppLanguage.en => 'Update route',
@@ -3588,6 +3775,7 @@ String _feeLabel(AppLanguage lang) => switch (lang) {
       AppLanguage.zh => '门票',
     };
 
+// ignore: unused_element
 String _checkBeforeVisitLabel(AppLanguage lang) => switch (lang) {
       AppLanguage.ko => '방문 전 확인',
       AppLanguage.en => 'Check before visit',
