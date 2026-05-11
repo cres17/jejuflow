@@ -1,76 +1,104 @@
-# JejuFlow — iOS Setup Guide
+# JejuFlow iOS Setup
 
-## Prerequisites (Mac)
-- Flutter 3.x: `flutter --version`
-- Xcode 15+
-- CocoaPods: `sudo gem install cocoapods`
+This guide covers the basic steps for running and preparing JejuFlow on iOS.
 
-## Steps
+## Requirements
 
-### 1. Clone / copy this project to Mac, then:
+- macOS
+- Xcode 15 or later
+- Flutter 3.x
+- CocoaPods
+
+Check Flutter first:
 
 ```bash
-cd jejuflow
+flutter --version
+flutter doctor
+```
+
+Install CocoaPods if needed:
+
+```bash
+sudo gem install cocoapods
+```
+
+## Prepare the Project
+
+From the project root:
+
+```bash
 flutter pub get
 flutter create . --platforms=ios --org com.jejuflow
 ```
 
-> `flutter create .` adds the missing ios/ native scaffolding.  
-> It will NOT overwrite files in `lib/`.
+`flutter create .` restores missing native iOS scaffolding when needed. It should not replace the Dart application code under `lib/`.
 
-### 2. Apply iOS config
+## iOS Configuration
 
-The `ios/` files in this repo already contain the correct config:
-- `ios/Runner/Info.plist` — location permission + Google Maps key
-- `ios/Runner/AppDelegate.swift` — GMSServices init
-- `ios/Podfile` — platform :ios, '17.0'
+Important files:
 
-If `flutter create` overwrites them, restore from git.
+| File | Purpose |
+|---|---|
+| `ios/Runner/Info.plist` | Location permission text and iOS app settings |
+| `ios/Runner/AppDelegate.swift` | Native startup configuration |
+| `ios/Podfile` | CocoaPods and iOS deployment target |
 
-### 3. Set Bundle ID in Xcode
+If generated files overwrite project-specific settings, restore the intended version from Git.
 
-Open `ios/Runner.xcworkspace` in Xcode:
-- Signing & Capabilities → Bundle Identifier: `com.jejuflow.app`
-- Select your Team
+## Bundle Identifier
 
-### 4. Install CocoaPods
+Open the workspace in Xcode:
 
 ```bash
-cd ios && pod install && cd ..
+open ios/Runner.xcworkspace
 ```
 
-### 5. Run on simulator
+In Signing & Capabilities:
+
+- Set the bundle identifier, for example `com.jejuflow.app`
+- Select the correct Apple Developer Team
+- Confirm signing works for the target device or simulator
+
+## Install Pods
+
+```bash
+cd ios
+pod install
+cd ..
+```
+
+## Run on iOS
 
 ```bash
 flutter run
 ```
 
-### 6. Build for App Store
+## Build for Release
 
 ```bash
 flutter build ios --release
 ```
 
-Then archive and upload in Xcode → Product → Archive.
+For App Store distribution, open Xcode and use Product > Archive.
 
 ## API Keys
 
-All keys are stored in `.env` (bundled as asset). Do NOT commit `.env` to git.
+Runtime keys are loaded from `.env`.
 
-| Key | Usage |
-|-----|-------|
-| `EXPO_PUBLIC_WEATHER_API_KEY` | 기상청 단기예보 |
-| `EXPO_PUBLIC_TAGO_API_KEY` | TAGO 버스 도착 |
-| `EXPO_PUBLIC_TOUR_API_KEY` | 관광공사 사진/정보 |
-| `EXPO_PUBLIC_GOOGLE_MAPS_KEY` | Google Maps iOS SDK |
+| Key | Purpose |
+|---|---|
+| `EXPO_PUBLIC_WEATHER_API_KEY` | Weather forecast data |
+| `EXPO_PUBLIC_TAGO_API_KEY` | Bus arrival and route data |
+| `EXPO_PUBLIC_TOUR_API_KEY` | Tourism place and image data |
+| `EXPO_PUBLIC_GOOGLE_MAPS_KEY` | Google Maps features |
+
+Do not commit `.env` or signing credentials.
 
 ## Troubleshooting
 
-**`GoogleMaps` framework not found**  
-→ Run `pod install` in `ios/` directory
-
-**Location permission crash**  
-→ Verify `NSLocationWhenInUseUsageDescription` in Info.plist
-
-**API returns empty data**  
-→ App falls back to mock data — check `.env` key values
+| Problem | Check |
+|---|---|
+| Google Maps does not load | Confirm the iOS API key and bundle restriction |
+| Location prompt does not appear | Check `NSLocationWhenInUseUsageDescription` in `Info.plist` |
+| Pods fail to install | Run `pod repo update`, then `pod install` again |
+| API data is empty | Confirm `.env` values and data.go.kr key type |
