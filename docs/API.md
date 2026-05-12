@@ -4,7 +4,7 @@ JejuFlow uses public data APIs for weather, public transportation, and tourism c
 
 ## Environment Variables
 
-Create a `.env` file in the project root.
+Create a `.env` file in the project root for local development. Use `.env.example` as the template.
 
 ```env
 EXPO_PUBLIC_WEATHER_API_KEY=
@@ -16,6 +16,8 @@ EXPO_PUBLIC_GOOGLE_MAPS_KEY=
 The variable names keep the existing `EXPO_PUBLIC_` prefix for compatibility with earlier project files, even though the main app is Flutter-based.
 
 Do not commit `.env` to Git.
+
+For release builds, provide the same keys through `--dart-define` or CI secrets instead of bundling a committed `.env` file.
 
 ## API Keys
 
