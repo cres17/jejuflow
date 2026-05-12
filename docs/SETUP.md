@@ -95,3 +95,9 @@ Before release, check:
 - API key exposure and secret handling
 - Privacy policy URL
 - Store screenshots and metadata
+
+Build an Android App Bundle with local API keys:
+
+```bash
+flutter build appbundle --release --dart-define-from-file=.env
+```
