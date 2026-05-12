@@ -13,7 +13,7 @@ import '../../core/utils/jeju_map_projection.dart';
 import '../../core/utils/route_utils.dart';
 import '../../providers/app_providers.dart';
 import '../../core/services/tour_service.dart';
-import '../../shared/widgets/claude_ui.dart';
+import '../../shared/widgets/app_ui.dart';
 import '../../shared/widgets/place_card.dart';
 import '../../shared/widgets/route_steps_widget.dart';
 
@@ -1876,8 +1876,8 @@ class _ExploreSpotRow extends StatelessWidget {
             children: [
               SizedBox(
                   width: 100,
-                  child: ClaudeSpotImage(
-                      spot: spot, height: 76, borderRadius: 18)),
+                  child:
+                      AppSpotImage(spot: spot, height: 76, borderRadius: 18)),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -1898,9 +1898,9 @@ class _ExploreSpotRow extends StatelessWidget {
                           ),
                         ),
                         if (added)
-                          ClaudeChip(
+                          AppChip(
                               label: _addedLabel(lang),
-                              tone: ClaudeChipTone.primary),
+                              tone: AppChipTone.primary),
                       ],
                     ),
                     const SizedBox(height: 3),
@@ -2602,11 +2602,11 @@ class _SpotDetailScreenState extends ConsumerState<_SpotDetailScreen> {
                     CachedNetworkImage(
                       imageUrl: displayPhoto,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => ClaudeSpotImage(
+                      errorWidget: (_, __, ___) => AppSpotImage(
                           spot: widget.spot, height: 530, borderRadius: 0),
                     )
                   else
-                    ClaudeSpotImage(
+                    AppSpotImage(
                         spot: widget.spot, height: 530, borderRadius: 0),
                   DecoratedBox(
                     decoration: BoxDecoration(
@@ -2632,7 +2632,7 @@ class _SpotDetailScreenState extends ConsumerState<_SpotDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ClaudeChip(
+                  AppChip(
                     label: _spotTypeLabel(lang, widget.spot),
                   ),
                   const SizedBox(height: 12),
@@ -3269,8 +3269,8 @@ class _AddSpotInfoSummary extends ConsumerWidget {
                   child: SizedBox(
                     width: 72,
                     height: 72,
-                    child: ClaudeSpotImage(
-                        spot: spot, height: 72, borderRadius: 16),
+                    child:
+                        AppSpotImage(spot: spot, height: 72, borderRadius: 16),
                   ),
                 ),
                 const SizedBox(width: 12),

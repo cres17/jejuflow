@@ -1,5 +1,7 @@
 .DS_Store
 .env
+.env.*
+!.env.example
 node_modules/
 *.log
 .expo/
@@ -14,6 +16,7 @@ build/
 *.iml
 *.jks
 android/key.properties
+android/local.properties
 *.p8
 *.p12
 *.key

@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/constants/colors.dart';
 import '../../providers/app_providers.dart';
-import '../../shared/widgets/claude_ui.dart';
+import '../../shared/widgets/app_ui.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -257,8 +257,7 @@ class _VisitorCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClaudeChip(
-                label: code, active: selected, tone: ClaudeChipTone.outline),
+            AppChip(label: code, active: selected, tone: AppChipTone.outline),
             const SizedBox(height: 14),
             Text(
               title,

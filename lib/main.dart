@@ -11,14 +11,12 @@ import 'core/services/local_notification_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: '.env');
+  await dotenv.load(fileName: '.env', isOptional: true);
   await Hive.initFlutter();
   await Hive.openBox<String>('cache');
   await Hive.openBox<String>('routes');
   await LocalNotificationService.initialize();
 
-  // --- API ?ㅽ뿕???ㅽ뻾 ---
-  // ???붾㈃???④린 ?꾩뿉 濡쒓렇濡??깃났 ?щ?瑜?癒쇱? ?뺤씤?⑸땲??
   if (!kIsWeb) {
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 

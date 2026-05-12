@@ -25,7 +25,7 @@ flutter pub get
 
 ## Environment File
 
-Create a `.env` file in the project root.
+Create a `.env` file in the project root for local development. Use `.env.example` as the template.
 
 ```env
 EXPO_PUBLIC_WEATHER_API_KEY=your_weather_key
@@ -38,7 +38,7 @@ Notes:
 
 - `.env` is intentionally ignored by Git
 - data.go.kr keys should usually use the decoding key
-- `pubspec.yaml` must include `.env` as an asset for Flutter runtime loading
+- Release builds should pass API keys through `--dart-define` or local CI secrets
 
 ## Run the App
 
@@ -73,11 +73,11 @@ flutter test
 | `lib/core/services` | API and local service classes |
 | `lib/providers` | Riverpod provider wiring |
 | `lib/shared/widgets` | Reusable UI components |
-| `docs` | Product, API, setup, and design reference documents |
+| `docs` | Product, API, setup, and release policy documents |
 
 ## Development Checklist
 
-- Confirm `.env` exists locally
+- Confirm `.env` exists locally or release API keys are provided with `--dart-define`
 - Run `flutter pub get`
 - Run `flutter analyze`
 - Open the Now screen and verify recommendations load

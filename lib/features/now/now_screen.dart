@@ -9,7 +9,7 @@ import '../../core/constants/spot_data.dart';
 import '../../core/models/spot.dart';
 import '../../core/models/weather.dart' hide TimeOfDay;
 import '../../providers/app_providers.dart';
-import '../../shared/widgets/claude_ui.dart';
+import '../../shared/widgets/app_ui.dart';
 
 class NowScreen extends ConsumerStatefulWidget {
   const NowScreen({super.key});
@@ -104,7 +104,7 @@ class _NowScreenState extends ConsumerState<NowScreen> {
                 children: [
                   _Header(flowIndoor: isIndoorFlow, lang: lang, region: region),
                   const SizedBox(height: 12),
-                  ClaudeSunArc(
+                  AppSunArc(
                     hour: hour,
                     temperature: weather?.temperature ?? '22°C',
                     weatherLabel: weather == null
@@ -293,10 +293,10 @@ class _Header extends StatelessWidget {
           ],
         ),
         const Spacer(),
-        ClaudeChip(
+        AppChip(
           label: flowIndoor ? _indoorLabel(lang) : _outdoorLabel(lang),
           active: true,
-          tone: flowIndoor ? ClaudeChipTone.secondary : ClaudeChipTone.primary,
+          tone: flowIndoor ? AppChipTone.secondary : AppChipTone.primary,
         ),
       ],
     );
@@ -423,7 +423,7 @@ class _StackedSpotCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ClaudeSpotImage(spot: spot),
+                  AppSpotImage(spot: spot),
                   const SizedBox(height: 14),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -457,8 +457,8 @@ class _StackedSpotCard extends StatelessWidget {
                         ),
                       ),
                       if (added)
-                        const ClaudeChip(
-                            label: 'Added', tone: ClaudeChipTone.primary),
+                        const AppChip(
+                            label: 'Added', tone: AppChipTone.primary),
                     ],
                   ),
                   const SizedBox(height: 14),
@@ -466,16 +466,16 @@ class _StackedSpotCard extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      ClaudeChip(
+                      AppChip(
                           label: _spotCategoryLabel(lang, spot.category),
-                          tone: ClaudeChipTone.primary),
-                      ClaudeChip(
+                          tone: AppChipTone.primary),
+                      AppChip(
                           label: _spotTransitLabel(lang, spot),
-                          tone: ClaudeChipTone.outline,
+                          tone: AppChipTone.outline,
                           icon: Icons.directions_bus),
-                      ClaudeChip(
+                      AppChip(
                           label: _spotTypeLabel(lang, spot),
-                          tone: ClaudeChipTone.tertiary),
+                          tone: AppChipTone.tertiary),
                     ],
                   ),
                 ],

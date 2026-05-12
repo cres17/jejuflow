@@ -16,8 +16,6 @@
 
 JejuFlow is a travel assistant for Jeju Island. It helps visitors decide where to go next by combining weather, nearby attractions, public transit information, and saved routes in one simple app.
 
-The project is built with Flutter and includes supporting web, documentation, and design reference files.
-
 ## Overview
 
 JejuFlow focuses on one practical travel moment: choosing the next place to visit. Instead of asking users to compare weather, bus arrivals, and tourism pages separately, the app brings those signals together and presents travel-ready options.
@@ -58,7 +56,7 @@ flutter pub get
 flutter run
 ```
 
-Create a `.env` file in the project root before running API-backed features.
+Create a `.env` file in the project root before running API-backed features. Use `.env.example` as the template and keep real keys local.
 
 ```env
 EXPO_PUBLIC_WEATHER_API_KEY=
@@ -74,8 +72,9 @@ EXPO_PUBLIC_GOOGLE_MAPS_KEY=
 | [Product Overview](docs/PRODUCT.md) | Product goal, target users, and main features |
 | [Setup Guide](docs/SETUP.md) | Local development setup |
 | [API Guide](docs/API.md) | API keys, services, and fallback behavior |
+| [Play Console Notes](docs/PLAY_CONSOLE_SUBMISSION.md) | Android release policy and app content answers |
+| [Privacy Policy](docs/PRIVACY_POLICY.md) | Privacy policy draft for release |
 | [iOS Setup](SETUP_IOS.md) | iOS build and release notes |
-| [AI Implementation Brief](docs/AI_IMPLEMENTATION_BRIEF.md) | Notes for AI-assisted development |
 
 ## Repository Notes
 

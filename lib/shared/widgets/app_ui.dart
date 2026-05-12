@@ -1,4 +1,4 @@
-﻿import 'dart:math' as math;
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -9,27 +9,27 @@ import '../../core/constants/colors.dart';
 import '../../core/models/spot.dart';
 import '../../providers/app_providers.dart';
 
-class ClaudeChip extends StatelessWidget {
-  const ClaudeChip({
+class AppChip extends StatelessWidget {
+  const AppChip({
     super.key,
     required this.label,
     this.active = false,
-    this.tone = ClaudeChipTone.primary,
+    this.tone = AppChipTone.primary,
     this.icon,
   });
 
   final String label;
   final bool active;
-  final ClaudeChipTone tone;
+  final AppChipTone tone;
   final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
     final colors = switch (tone) {
-      ClaudeChipTone.primary => (AppColors.greenBg, AppColors.accent),
-      ClaudeChipTone.secondary => (AppColors.secondaryBg, AppColors.secondary),
-      ClaudeChipTone.tertiary => (AppColors.yellowBg, AppColors.tertiary),
-      ClaudeChipTone.outline => (Colors.transparent, AppColors.text2),
+      AppChipTone.primary => (AppColors.greenBg, AppColors.accent),
+      AppChipTone.secondary => (AppColors.secondaryBg, AppColors.secondary),
+      AppChipTone.tertiary => (AppColors.yellowBg, AppColors.tertiary),
+      AppChipTone.outline => (Colors.transparent, AppColors.text2),
     };
     return Container(
       height: 31,
@@ -38,7 +38,7 @@ class ClaudeChip extends StatelessWidget {
         color: active ? colors.$2 : colors.$1,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
-            color: tone == ClaudeChipTone.outline
+            color: tone == AppChipTone.outline
                 ? AppColors.separator
                 : Colors.transparent),
       ),
@@ -63,10 +63,10 @@ class ClaudeChip extends StatelessWidget {
   }
 }
 
-enum ClaudeChipTone { primary, secondary, tertiary, outline }
+enum AppChipTone { primary, secondary, tertiary, outline }
 
-class ClaudeSunArc extends StatelessWidget {
-  const ClaudeSunArc({
+class AppSunArc extends StatelessWidget {
+  const AppSunArc({
     super.key,
     required this.hour,
     required this.temperature,
@@ -213,8 +213,8 @@ class _SunArcPainter extends CustomPainter {
       oldDelegate.hour != hour;
 }
 
-class ClaudeSpotImage extends ConsumerWidget {
-  const ClaudeSpotImage(
+class AppSpotImage extends ConsumerWidget {
+  const AppSpotImage(
       {super.key,
       required this.spot,
       this.height = 170,
@@ -227,9 +227,8 @@ class ClaudeSpotImage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final providerPhoto = ref.watch(spotPhotoUrlProvider(spot.id));
-    final photoUrl = spot.photoUrl?.isNotEmpty == true
-        ? spot.photoUrl
-        : providerPhoto;
+    final photoUrl =
+        spot.photoUrl?.isNotEmpty == true ? spot.photoUrl : providerPhoto;
     final tone = switch (spot.category) {
       SpotCategory.indoor => (AppColors.surface3, AppColors.surfaceDim),
       SpotCategory.both => (AppColors.secondaryBg, const Color(0xFFE7B49C)),
@@ -365,9 +364,8 @@ class _StripePainter extends CustomPainter {
       oldDelegate.color != color;
 }
 
-// KakaoMap ?ㅼ젣 ?곕룞 ?꾩젽 ??ClaudeJejuMap怨??숈씪???명꽣?섏씠???좎?
-class ClaudeJejuMap extends StatelessWidget {
-  const ClaudeJejuMap({
+class AppJejuMap extends StatelessWidget {
+  const AppJejuMap({
     super.key,
     required this.spots,
     this.highlight,
@@ -417,7 +415,7 @@ class ClaudeJejuMap extends StatelessWidget {
             children: [
               Positioned.fill(
                 child: CustomPaint(
-                  painter: _ClaudeJejuMapPainter(
+                  painter: _AppJejuMapPainter(
                     mapRect: mapRect,
                     spots: spots,
                     route: route,
@@ -483,13 +481,14 @@ class ClaudeJejuMap extends StatelessWidget {
 
   static Offset _project(Spot spot, Rect rect) {
     final x = ((spot.lng - _minLng) / (_maxLng - _minLng)).clamp(0.0, 1.0);
-    final y = (1 - ((spot.lat - _minLat) / (_maxLat - _minLat))).clamp(0.0, 1.0);
+    final y =
+        (1 - ((spot.lat - _minLat) / (_maxLat - _minLat))).clamp(0.0, 1.0);
     return Offset(rect.left + rect.width * x, rect.top + rect.height * y);
   }
 }
 
-class _ClaudeJejuMapPainter extends CustomPainter {
-  const _ClaudeJejuMapPainter({
+class _AppJejuMapPainter extends CustomPainter {
+  const _AppJejuMapPainter({
     required this.mapRect,
     required this.spots,
     required this.route,
@@ -509,16 +508,29 @@ class _ClaudeJejuMapPainter extends CustomPainter {
     canvas.drawRect(Offset.zero & size, bg);
 
     final island = Path()
-      ..moveTo(mapRect.left + mapRect.width * .03, mapRect.top + mapRect.height * .55)
-      ..cubicTo(mapRect.left + mapRect.width * .13, mapRect.top + mapRect.height * .18,
-          mapRect.left + mapRect.width * .47, mapRect.top + mapRect.height * .02,
-          mapRect.left + mapRect.width * .78, mapRect.top + mapRect.height * .20)
-      ..cubicTo(mapRect.left + mapRect.width * .98, mapRect.top + mapRect.height * .32,
-          mapRect.left + mapRect.width * 1.00, mapRect.top + mapRect.height * .66,
-          mapRect.left + mapRect.width * .72, mapRect.top + mapRect.height * .86)
-      ..cubicTo(mapRect.left + mapRect.width * .47, mapRect.top + mapRect.height * 1.02,
-          mapRect.left + mapRect.width * .12, mapRect.top + mapRect.height * .86,
-          mapRect.left + mapRect.width * .03, mapRect.top + mapRect.height * .55)
+      ..moveTo(mapRect.left + mapRect.width * .03,
+          mapRect.top + mapRect.height * .55)
+      ..cubicTo(
+          mapRect.left + mapRect.width * .13,
+          mapRect.top + mapRect.height * .18,
+          mapRect.left + mapRect.width * .47,
+          mapRect.top + mapRect.height * .02,
+          mapRect.left + mapRect.width * .78,
+          mapRect.top + mapRect.height * .20)
+      ..cubicTo(
+          mapRect.left + mapRect.width * .98,
+          mapRect.top + mapRect.height * .32,
+          mapRect.left + mapRect.width * 1.00,
+          mapRect.top + mapRect.height * .66,
+          mapRect.left + mapRect.width * .72,
+          mapRect.top + mapRect.height * .86)
+      ..cubicTo(
+          mapRect.left + mapRect.width * .47,
+          mapRect.top + mapRect.height * 1.02,
+          mapRect.left + mapRect.width * .12,
+          mapRect.top + mapRect.height * .86,
+          mapRect.left + mapRect.width * .03,
+          mapRect.top + mapRect.height * .55)
       ..close();
 
     canvas.drawPath(
@@ -547,7 +559,8 @@ class _ClaudeJejuMapPainter extends CustomPainter {
       );
     }
 
-    final routePoints = route.map((spot) => points[spot.id]).whereType<Offset>().toList();
+    final routePoints =
+        route.map((spot) => points[spot.id]).whereType<Offset>().toList();
     if (routePoints.length > 1) {
       final path = Path()..moveTo(routePoints.first.dx, routePoints.first.dy);
       for (final point in routePoints.skip(1)) {
@@ -575,7 +588,7 @@ class _ClaudeJejuMapPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _ClaudeJejuMapPainter oldDelegate) {
+  bool shouldRepaint(covariant _AppJejuMapPainter oldDelegate) {
     return oldDelegate.spots != spots ||
         oldDelegate.route != route ||
         oldDelegate.highlight != highlight ||
