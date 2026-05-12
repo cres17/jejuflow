@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="docs/jejuflowicon.png" alt="JejuFlow icon" width="96" />
-</p>
-
 <h1 align="center">JejuFlow</h1>
 
 <p align="center">
@@ -69,12 +65,8 @@ EXPO_PUBLIC_GOOGLE_MAPS_KEY=
 
 | Document | Purpose |
 |---|---|
-| [Product Overview](docs/PRODUCT.md) | Product goal, target users, and main features |
-| [Setup Guide](docs/SETUP.md) | Local development setup |
-| [API Guide](docs/API.md) | API keys, services, and fallback behavior |
 | [Play Console Notes](docs/PLAY_CONSOLE_SUBMISSION.md) | Android release policy and app content answers |
 | [Privacy Policy](docs/PRIVACY_POLICY.md) | Privacy policy draft for release |
-| [iOS Setup](SETUP_IOS.md) | iOS build and release notes |
 
 ## Repository Notes
 
