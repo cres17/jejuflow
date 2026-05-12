@@ -97,5 +97,6 @@ Reference: https://support.google.com/googleplay/android-developer/answer/107874
 
 - Confirm the public privacy policy URL is live and accessible without login.
 - Confirm `.env`, `android/key.properties`, and keystore files are not tracked by Git.
+- Build the upload AAB with `flutter build appbundle --release --dart-define-from-file=.env` so API keys are provided without committing them.
 - Confirm Play Console Data safety answers match the exact build being uploaded.
 - Rebuild the release AAB after any version or policy-related code changes.

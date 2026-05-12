@@ -17,7 +17,7 @@ The variable names keep the existing `EXPO_PUBLIC_` prefix for compatibility wit
 
 Do not commit `.env` to Git.
 
-For release builds, provide the same keys through `--dart-define` or CI secrets instead of bundling a committed `.env` file.
+For release builds, provide the same keys through `--dart-define`, `--dart-define-from-file=.env`, or CI secrets instead of bundling a committed `.env` file.
 
 ## API Keys
 
