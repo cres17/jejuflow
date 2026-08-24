@@ -163,7 +163,9 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> {
       AppLanguage lang, List<SavedRoute> selectedRoutes) {
     return ReorderableListView.builder(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
-      onReorder: (o, n) => ref.read(savedRoutesProvider.notifier).reorder(o, n),
+      onReorderItem: (oldIndex, newIndex) => ref
+          .read(savedRoutesProvider.notifier)
+          .reorderItem(oldIndex, newIndex),
       proxyDecorator: (child, _, __) => Material(
           color: Colors.transparent,
           elevation: 10,

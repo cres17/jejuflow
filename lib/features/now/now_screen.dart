@@ -194,11 +194,11 @@ class _NowScreenState extends ConsumerState<NowScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('??skip',
+                                    Text('↓ ${tr(lang, 'skip')}',
                                         style: GoogleFonts.jetBrainsMono(
                                             fontSize: 10,
                                             color: AppColors.text3)),
-                                    Text('??add to route',
+                                    Text('↑ ${tr(lang, 'add')}',
                                         style: GoogleFonts.jetBrainsMono(
                                             fontSize: 10,
                                             color: AppColors.tertiary,

@@ -29,7 +29,7 @@ class WeatherService {
     final kmaTime = getKMABaseDateTime();
 
     try {
-      // 媛?대뱶 ?섏튃: Decoding ?ㅻ? ?ъ슜?섏뿬 Uri ?앹꽦 (?쒖뒪?쒖씠 ??踰덈쭔 ?몄퐫?⑺븯?꾨줉 ??
+      // Use the decoded service key and let Uri encode it exactly once.
       final uri = Uri.https('apis.data.go.kr',
           '/1360000/VilageFcstInfoService_2.0/getVilageFcst', {
         'serviceKey': ApiKeys.weatherServiceKey,

@@ -30,6 +30,36 @@ class TourPlace {
   bool get hasImage => imageUrl.isNotEmpty;
   String get displayImage => thumbUrl.isNotEmpty ? thumbUrl : imageUrl;
 
+  /// TourAPI does not expose cafes as a separate content type. Korean data
+  /// provides a cafe category code, while translated services can require a
+  /// small title/category heuristic instead.
+  bool get looksLikeCafe {
+    if (cat3 == 'A05020900') return true;
+
+    final searchable = [title, addr, cat1, cat2, cat3].join(' ').toLowerCase();
+    return const [
+      'cafe',
+      'café',
+      'coffee',
+      'tea house',
+      'bakery',
+      'dessert',
+      'brunch',
+      'roaster',
+      'cake',
+      '카페',
+      '커피',
+      '베이커리',
+      '디저트',
+      '다방',
+      '찻집',
+      'カフェ',
+      'コーヒー',
+      '咖啡',
+      '甜品',
+    ].any(searchable.contains);
+  }
+
   factory TourPlace.fromApi(Map<String, dynamic> m) {
     final thumb = _httpsImageUrl(m['firstimage2']?.toString() ?? '');
     final orig = _httpsImageUrl(m['firstimage']?.toString() ?? '');

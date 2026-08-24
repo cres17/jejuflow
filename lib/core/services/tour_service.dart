@@ -126,7 +126,7 @@ class TourService {
       CacheService.month,
       _placesFromJson,
     );
-    if (cached != null) return cached;
+    if (cached != null) return _matchingPlaces(cached, type);
     try {
       final contentTypeId = switch (type) {
         PlaceType.tourist => _touristContentTypeId(sourceLanguage),
@@ -154,7 +154,7 @@ class TourService {
       final result = _items(res.data)
           .whereType<Map>()
           .map((e) => TourPlace.fromApi(Map<String, dynamic>.from(e)))
-          .where((place) => _isPlaceTypeMatch(place, type, sourceLanguage))
+          .where((place) => _isPlaceTypeMatch(place, type))
           .toList();
       if (result.isNotEmpty) {
         await CacheService.set(cacheKey, _placesToJson(result));
@@ -162,11 +162,11 @@ class TourService {
       return result;
     } catch (e) {
       debugPrint('Tour places error: $e');
-      return await CacheService.getStale<List<TourPlace>>(
-            cacheKey,
-            _placesFromJson,
-          ) ??
-          [];
+      final stale = await CacheService.getStale<List<TourPlace>>(
+        cacheKey,
+        _placesFromJson,
+      );
+      return _matchingPlaces(stale ?? const [], type);
     }
   }
 
@@ -218,7 +218,7 @@ class TourService {
       CacheService.month,
       _placesFromJson,
     );
-    if (cached != null) return cached;
+    if (cached != null) return _matchingPlaces(cached, type);
     final all = <TourPlace>[];
     final seen = <String>{};
     for (var page = 1; page <= maxPages; page++) {
@@ -450,8 +450,16 @@ String _foodContentTypeId(String language) {
   return _sourceLanguage(language) == 'ko' ? '39' : '82';
 }
 
-bool _isPlaceTypeMatch(TourPlace place, PlaceType type, String language) {
-  return true;
+bool _isPlaceTypeMatch(TourPlace place, PlaceType type) {
+  return switch (type) {
+    PlaceType.tourist => true,
+    PlaceType.restaurant => !place.looksLikeCafe,
+    PlaceType.cafe => place.looksLikeCafe,
+  };
+}
+
+List<TourPlace> _matchingPlaces(Iterable<TourPlace> places, PlaceType type) {
+  return places.where((place) => _isPlaceTypeMatch(place, type)).toList();
 }
 
 List<Map<String, dynamic>> _placesToJson(List<TourPlace> places) {

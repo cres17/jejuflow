@@ -18,7 +18,7 @@ import '../core/services/local_notification_service.dart';
 import '../core/utils/location_utils.dart';
 import '../core/utils/weather_utils.dart';
 
-// ???1 Tab Index (for cross-tab navigation) ??????????????????????
+// Cross-tab navigation and route-draft state.
 final tabIndexProvider = StateProvider<int>((ref) => 0);
 
 final routeDraftProvider = StateProvider<List<Spot>>((ref) => []);
@@ -213,10 +213,10 @@ String tr(AppLanguage lang, String key) {
   return values[key]?[lang] ?? values[key]?[AppLanguage.en] ?? key;
 }
 
-// ??? Region ????????????????????????????????????????????????????
+// Region selected from device location (Jeju City is the fallback).
 final regionProvider = StateProvider<SpotRegion>((ref) => SpotRegion.jejuCity);
 
-// ??? App Init ??????????????????????????????????????????????????
+// App initialization: region, weather, saved routes, reminders, and prefetch.
 final appInitProvider = FutureProvider<void>((ref) async {
   final region = await detectRegion();
   ref.read(regionProvider.notifier).state = region;
@@ -254,7 +254,7 @@ final appInitProvider = FutureProvider<void>((ref) async {
   ]));
 });
 
-// ??? Weather ???????????????????????????????????????????????????
+// Weather state for the active region.
 final weatherProvider =
     FutureProvider.family<WeatherData, SpotRegion>((ref, region) async {
   return WeatherService.fetchWeather(region);
@@ -265,13 +265,13 @@ final currentWeatherProvider = Provider<AsyncValue<WeatherData>>((ref) {
   return ref.watch(weatherProvider(region));
 });
 
-// ??? Bus Arrivals ??????????????????????????????????????????????
+// Real-time bus arrivals by stop ID.
 final busArrivalsProvider =
     FutureProvider.family<List<BusArrival>, String>((ref, stopId) async {
   return TransitService.fetchArrivals(stopId);
 });
 
-// ??? Filtered Spots ????????????????????????????????????????????
+// Local fallback spots filtered by region and weather.
 final filteredSpotsProvider = Provider<List<Spot>>((ref) {
   final region = ref.watch(regionProvider);
   final weather = ref.watch(currentWeatherProvider).valueOrNull;
@@ -291,10 +291,10 @@ final filteredSpotsProvider = Provider<List<Spot>>((ref) {
   return [...local, ...backups];
 });
 
-// ??? Selected Spot (Move tab) ??????????????????????????????????
+// Currently selected place in the Move tab.
 final selectedSpotProvider = StateProvider<Spot?>((ref) => null);
 
-// ??? Spot Photos ???????????????????????????????????????????????
+// TourAPI photos and derived visual themes.
 final spotPhotosProvider =
     FutureProvider.family<List<TourPhoto>, String>((ref, contentId) async {
   return TourService.fetchPhotos(contentId);
@@ -308,7 +308,7 @@ final spotPhotoUrlProvider = Provider.family<String?, String>((ref, spotId) {
   return photos.valueOrNull?.firstOrNull?.originUrl;
 });
 
-// ??? Extracted Theme ???????????????????????????????????????????
+// Theme extracted from the primary TourAPI photo.
 final spotThemeProvider =
     FutureProvider.family<ExtractedTheme?, String>((ref, spotId) async {
   final photoUrl = ref.watch(spotPhotoUrlProvider(spotId));
@@ -316,7 +316,7 @@ final spotThemeProvider =
   return ColorExtractService.extract(spotId, photoUrl);
 });
 
-// ??? Spot Info EN ??????????????????????????????????????????????
+// Localized TourAPI place details.
 final spotInfoProvider =
     FutureProvider.family<SpotInfoEN?, (String, String)>((ref, args) async {
   final (contentId, language) = args;
@@ -324,7 +324,7 @@ final spotInfoProvider =
   return TourService.fetchInfoEN(contentId, language: language);
 });
 
-// ??? Related Spots ?????????????????????????????????????????????
+// Related TourAPI places and detail fields.
 final relatedSpotsProvider =
     FutureProvider.family<List<RelatedSpot>, String>((ref, contentId) async {
   return TourService.fetchRelated(contentId);
@@ -337,7 +337,7 @@ final spotIntroProvider =
   return TourService.fetchIntro(contentId, contentTypeId);
 });
 
-// ??? Crowd Level ???????????????????????????????????????????????
+// DataLab crowd estimate.
 final crowdProvider =
     FutureProvider.family<CrowdData?, String>((ref, contentId) async {
   final idx = await TourService.fetchCrowdIndex(contentId);
@@ -346,7 +346,7 @@ final crowdProvider =
       level: CrowdData.classify(idx), index: idx, updatedAt: DateTime.now());
 });
 
-// ??? Saved Routes ??????????????????????????????????????????????
+// Locally persisted route schedule and reminder synchronization.
 class SavedRoutesNotifier extends AsyncNotifier<List<SavedRoute>> {
   static const _key = 'saved_routes';
 
@@ -436,9 +436,8 @@ class SavedRoutesNotifier extends AsyncNotifier<List<SavedRoute>> {
     }
   }
 
-  Future<void> reorder(int oldIndex, int newIndex) async {
+  Future<void> reorderItem(int oldIndex, int newIndex) async {
     final list = List<SavedRoute>.from(state.valueOrNull ?? []);
-    if (newIndex > oldIndex) newIndex--;
     final item = list.removeAt(oldIndex);
     list.insert(newIndex, item);
     state = AsyncData(list);
@@ -456,7 +455,7 @@ final savedRoutesProvider =
   SavedRoutesNotifier.new,
 );
 
-// ??? Place List (API) ??????????????????????????????????????????
+// TourAPI place lists and fallback conversion into app-domain spots.
 final placeListProvider = FutureProvider.family<List<TourPlace>, PlaceType>(
   (ref, type) async {
     final language = ref.watch(appLanguageProvider);
@@ -469,7 +468,7 @@ final placeListProvider = FutureProvider.family<List<TourPlace>, PlaceType>(
   },
 );
 
-// ??? Weather-based spots ???????????????????????????????????????
+// Weather-aware and randomized recommendations.
 final weatherSpotsProvider = FutureProvider<List<TourPlace>>((ref) async {
   final isBad = ref.watch(currentWeatherProvider).valueOrNull?.isBad ?? false;
   final language = ref.watch(appLanguageProvider);
@@ -500,8 +499,8 @@ final allPlaceSpotsProvider =
     language: languageCode,
   );
   final filteredPlaces = places.where((place) {
-    if (type == PlaceType.cafe) return _looksLikeCafe(place);
-    if (type == PlaceType.restaurant) return !_looksLikeCafe(place);
+    if (type == PlaceType.cafe) return place.looksLikeCafe;
+    if (type == PlaceType.restaurant) return !place.looksLikeCafe;
     return true;
   });
   final apiSpots = filteredPlaces
@@ -1319,7 +1318,7 @@ const _spotText = <String, Map<AppLanguage, (String, String)>>{
     AppLanguage.zh: ('山君不离', '开阔草原与火山口散步'),
   },
 };
-// ??? Time of day ???????????????????????????????????????????????
+// Time-of-day theme.
 final timeOfDayProvider = Provider<TimeOfDay>((ref) => detectTimeOfDay());
 
 List<TourPlace> _fallbackTourPlaces(SpotRegion region) {
@@ -1389,35 +1388,4 @@ Spot _tourPlaceToSpot(TourPlace place, PlaceType type, AppLanguage language) {
     lat: lat,
     lng: lng,
   )..photoUrl = place.displayImage;
-}
-
-bool _looksLikeCafe(TourPlace place) {
-  if (place.cat3 == 'A05020900') return true;
-  final text = [
-    place.title,
-    place.addr,
-    place.cat1,
-    place.cat2,
-    place.cat3,
-  ].join(' ').toLowerCase();
-  return const [
-    'cafe',
-    'caf',
-    'tea',
-    'coffee',
-    'bakery',
-    'bread',
-    'brunch',
-    'roaster',
-    'dessert',
-    'cake',
-    'donut',
-    'roastery',
-    '카페',
-    '커피',
-    '베이커리',
-    '디저트',
-    '다방',
-    '찻집',
-  ].any(text.contains);
 }
