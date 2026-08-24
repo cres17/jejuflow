@@ -21,8 +21,6 @@
   <img alt="Version" src="https://img.shields.io/badge/App-1.0.1%2B2-BD927E?style=flat-square">
 </p>
 
-<img src="assets/jeju.png" alt="JejuFlow Jeju map artwork" width="760">
-
 </div>
 
 ---
