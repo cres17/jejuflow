@@ -1,11 +1,11 @@
 {
-    "name": "jejuflow",
-    "short_name": "jejuflow",
+    "name": "JEJUFLOW",
+    "short_name": "JEJUFLOW",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FFFFFF",
+    "theme_color": "#FF7A00",
+    "description": "날씨에 맞는 장소를 고르고 버스로 이어가는 제주 여행.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

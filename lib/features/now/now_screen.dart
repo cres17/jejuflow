@@ -10,6 +10,7 @@ import '../../core/models/spot.dart';
 import '../../core/models/weather.dart' hide TimeOfDay;
 import '../../providers/app_providers.dart';
 import '../../shared/widgets/app_ui.dart';
+import '../../shared/widgets/jejuflow_logo.dart';
 
 class NowScreen extends ConsumerStatefulWidget {
   const NowScreen({super.key});
@@ -275,7 +276,10 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Column(
+        const JejuFlowLogo(size: 44, decorative: true),
+        const SizedBox(width: 10),
+        Expanded(
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -291,8 +295,8 @@ class _Header extends StatelessWidget {
             Text(regionLabelFor(lang, region),
                 style: GoogleFonts.inter(fontSize: 12, color: AppColors.text2)),
           ],
-        ),
-        const Spacer(),
+        )),
+        const SizedBox(width: 8),
         AppChip(
           label: flowIndoor ? _indoorLabel(lang) : _outdoorLabel(lang),
           active: true,

@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/branding/jejuflow-logo.png" alt="길 모양의 무늬가 있는 걷는 귤, JEJUFLOW 로고" width="160" height="160">
+
 # JEJUFLOW
 
 ### 날씨를 보고, 지금 갈 곳을 고르고, 버스로 이어지는 제주 여행

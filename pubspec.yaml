@@ -49,8 +49,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  image: 4.8.0
 
 flutter:
   uses-material-design: true
   assets:
     - assets/jeju.png
+    - assets/branding/jejuflow-logo.png

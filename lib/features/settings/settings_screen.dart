@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/colors.dart';
 import '../../providers/app_providers.dart';
 import '../../shared/widgets/app_ui.dart';
+import '../../shared/widgets/jejuflow_logo.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -26,6 +27,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 14, 24, 130),
           children: [
+            Row(
+              children: [
+                const JejuFlowLogo(size: 44, decorative: true),
+                const SizedBox(width: 12),
+                Text(
+                  'JEJUFLOW',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.text1,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
             Text(
               _settingsKicker(language),
               style: GoogleFonts.inter(

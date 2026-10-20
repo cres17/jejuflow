@@ -8,6 +8,7 @@ import 'features/move/move_screen.dart';
 import 'features/routes/routes_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'providers/app_providers.dart';
+import 'shared/widgets/jejuflow_logo.dart';
 
 // Returns a language-aware display font style for headings/titles.
 TextStyle appHeadingStyle(AppLanguage lang,
@@ -135,6 +136,8 @@ class LanguageSelectScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const JejuFlowLogo(size: 88, decorative: true),
+              const SizedBox(height: 20),
               Text(
                 'JejuFlow',
                 style: GoogleFonts.montserrat(
