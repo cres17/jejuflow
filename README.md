@@ -9,23 +9,130 @@
 제주의 수많은 장소를 늘어놓는 대신<br>
 **“지금 어디로 가면 좋을까?”**에 답하려고 만든 여행 의사결정 앱입니다.
 
-<p>
-  <img alt="Flutter" src="https://img.shields.io/badge/Flutter-%3E%3D_3.44-02569B?style=for-the-badge&logo=flutter&logoColor=white">
-  <img alt="Dart" src="https://img.shields.io/badge/Dart-%3E%3D_3.3-0175C2?style=for-the-badge&logo=dart&logoColor=white">
-  <img alt="Riverpod" src="https://img.shields.io/badge/Riverpod-2.x-6B57FF?style=for-the-badge">
-  <img alt="Dio" src="https://img.shields.io/badge/Dio-5.x-5A29E4?style=for-the-badge">
-</p>
-<p>
-  <img alt="Hive" src="https://img.shields.io/badge/Hive-Local_Cache-F9C23C?style=flat-square">
-  <img alt="Kakao Map" src="https://img.shields.io/badge/Kakao_Map-WebView_&_Deep_Link-FFCD00?style=flat-square&logo=kakao&logoColor=111111">
-  <img alt="Korean Public Data" src="https://img.shields.io/badge/Data-KMA_%7C_TAGO_%7C_TourAPI-37503D?style=flat-square">
-  <img alt="Platforms" src="https://img.shields.io/badge/Platform-Android_%7C_Web-3DDC84?style=flat-square&logo=android&logoColor=white">
-  <img alt="Version" src="https://img.shields.io/badge/App-1.0.1%2B2-BD927E?style=flat-square">
-</p>
 
 </div>
 
 ---
+
+## 아키텍처
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/architecture-dark.svg">
+  <img src="docs/assets/readme/architecture.svg" alt="JEJUFLOW 주요 구성과 데이터 흐름" width="1200">
+</picture>
+
+Flutter 클라이언트 안에서 Riverpod이 화면 상태와 비동기 작업을 조합합니다. 서비스는 공공 API와 통신하고 Hive에 캐시와 일정을 저장합니다. 지도·위치·알림은 플랫폼 기능에 연결됩니다.
+
+| 구성 | 역할 |
+|---|---|
+| 화면 | 추천 카드, 장소 탐색, 날짜별 일정, 설정 |
+| 상태 | 위치·날씨 초기화와 저장 일정·알림 동기화 |
+| 데이터 | API 응답 캐시와 로컬 장소 fallback |
+| 플랫폼 | Kakao 지도·외부 링크, 위치 권한, 출발 전 알림 |
+
+<details>
+<summary>아키텍처 상세와 구현 경계</summary>
+
+### 아키텍처
+
+JEJUFLOW는 서버가 포함된 모노레포가 아니라 **Flutter 클라이언트 중심 구조**입니다. 화면은 외부 API를 직접 호출하지 않습니다. Riverpod Provider가 상태와 비동기 유스케이스를 조합하고, Service가 통신과 캐시를 맡습니다.
+
+```mermaid
+flowchart TB
+    subgraph UI["Presentation"]
+        SHELL["JejuFlowApp / MainShell"]
+        SCREENS["Now · Move · Routes · Settings"]
+        WIDGETS["shared/widgets"]
+        SHELL --> SCREENS --> WIDGETS
+    end
+    subgraph STATE["Application State"]
+        PROVIDERS["Riverpod Providers"]
+        INIT["appInitProvider"]
+        ASYNC["FutureProvider / AsyncNotifier"]
+        LOCALSTATE["StateProvider"]
+        PROVIDERS --> INIT
+        PROVIDERS --> ASYNC
+        PROVIDERS --> LOCALSTATE
+    end
+    subgraph DOMAIN["Domain"]
+        MODELS["Spot · TourPlace · Weather · Bus · SavedRoute"]
+        UTILS["추천 · 번역 · 날씨 · 거리/시간 계산"]
+        FALLBACK["spot_data.dart"]
+    end
+    subgraph DATA["Data & Device"]
+        SERVICES["Weather · Transit · Tour Services"]
+        CACHE["CacheService"]
+        DEVICE["Geolocator · Local Notifications"]
+        MAP["Kakao Map View / Deep Link"]
+        HIVE[("Hive: cache · routes")]
+    end
+    subgraph EXTERNAL["External"]
+        KMA["기상청"]
+        TAGO["TAGO"]
+        TOUR["TourAPI / DataLab"]
+        KAKAO["Kakao Maps"]
+    end
+    SCREENS --> PROVIDERS
+    PROVIDERS --> MODELS
+    PROVIDERS --> UTILS
+    PROVIDERS --> FALLBACK
+    PROVIDERS --> SERVICES
+    PROVIDERS --> DEVICE
+    SERVICES --> CACHE --> HIVE
+    PROVIDERS --> HIVE
+    SERVICES --> KMA
+    SERVICES --> TAGO
+    SERVICES --> TOUR
+    WIDGETS --> MAP --> KAKAO
+```
+
+#### 시작부터 화면이 채워지기까지
+
+```mermaid
+sequenceDiagram
+    actor User as 사용자
+    participant Main as main.dart
+    participant Shell as MainShell
+    participant Provider as Riverpod
+    participant Local as Hive / Device
+    participant API as Public APIs
+    User->>Main: 앱 실행
+    Main->>Local: Hive, 알림 초기화
+    Main->>Shell: ProviderScope로 시작
+    Shell->>Provider: appInitProvider
+    Provider->>Local: 위치 권한과 현재 위치
+    Local-->>Provider: 제주시 또는 서귀포시
+    Provider->>API: 기상청 예보
+    API-->>Provider: 기온, 강수, 하늘, 풍속
+    Provider->>Local: 저장 일정 로드
+    Provider-->>Shell: 화면 상태 갱신
+    Provider->>API: TourAPI 목록 백그라운드 prefetch
+    API-->>Local: 월 단위 캐시
+```
+
+`appInitProvider`는 권역 감지 → 날씨 → 저장 일정 → 알림 동기화 순으로 필수 상태를 준비합니다. 관광지와 음식점 전체 목록은 첫 화면을 막지 않도록 `unawaited` 백그라운드 prefetch로 시작합니다.
+
+</details>
+
+## 기술 스택
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/tech-stack-dark.svg">
+  <img src="docs/assets/readme/tech-stack.svg" alt="JEJUFLOW 기술 스택" width="1200">
+</picture>
+
+| 구분 | 기술 | 역할 |
+|---|---|---|
+| UI | Flutter, Material 3 | 모바일/웹 UI |
+| 상태 | Riverpod | 동기 상태, API 상태, 일정 영속 상태 조합 |
+| HTTP | Dio | 타임아웃과 응답 정책 |
+| 저장 | Hive | 캐시, 일정, 설정 |
+| 위치 | Geolocator | 권한과 현재 위치 |
+| 지도 | Kakao Maps JS SDK, WebView | 앱 내부 지도 |
+| 외부 이동 | url_launcher | Kakao 딥링크/웹 fallback |
+| 알림 | flutter_local_notifications, timezone | 일정 30분 전 알림 |
+| 이미지 | cached_network_image, palette_generator | 이미지 캐시와 대표 색 |
+| 다국어 | Flutter localizations, Google Fonts | 4개 언어 문구/글꼴 |
 
 ## 먼저, 이 앱을 만든 이유
 
@@ -123,85 +230,6 @@ TourAPI는 음식점과 카페를 같은 콘텐츠 타입으로 제공합니다.
 
 > 방문자 유형(국내/해외) 카드는 현재 화면 상태만 바꾸는 UI 단계입니다. 추천 정책과 영속 설정에 연결하는 일은 후속 과제로 남아 있습니다.
 
-## 아키텍처
-
-JEJUFLOW는 서버가 포함된 모노레포가 아니라 **Flutter 클라이언트 중심 구조**입니다. 화면은 외부 API를 직접 호출하지 않습니다. Riverpod Provider가 상태와 비동기 유스케이스를 조합하고, Service가 통신과 캐시를 맡습니다.
-
-```mermaid
-flowchart TB
-    subgraph UI["Presentation"]
-        SHELL["JejuFlowApp / MainShell"]
-        SCREENS["Now · Move · Routes · Settings"]
-        WIDGETS["shared/widgets"]
-        SHELL --> SCREENS --> WIDGETS
-    end
-    subgraph STATE["Application State"]
-        PROVIDERS["Riverpod Providers"]
-        INIT["appInitProvider"]
-        ASYNC["FutureProvider / AsyncNotifier"]
-        LOCALSTATE["StateProvider"]
-        PROVIDERS --> INIT
-        PROVIDERS --> ASYNC
-        PROVIDERS --> LOCALSTATE
-    end
-    subgraph DOMAIN["Domain"]
-        MODELS["Spot · TourPlace · Weather · Bus · SavedRoute"]
-        UTILS["추천 · 번역 · 날씨 · 거리/시간 계산"]
-        FALLBACK["spot_data.dart"]
-    end
-    subgraph DATA["Data & Device"]
-        SERVICES["Weather · Transit · Tour Services"]
-        CACHE["CacheService"]
-        DEVICE["Geolocator · Local Notifications"]
-        MAP["Kakao Map View / Deep Link"]
-        HIVE[("Hive: cache · routes")]
-    end
-    subgraph EXTERNAL["External"]
-        KMA["기상청"]
-        TAGO["TAGO"]
-        TOUR["TourAPI / DataLab"]
-        KAKAO["Kakao Maps"]
-    end
-    SCREENS --> PROVIDERS
-    PROVIDERS --> MODELS
-    PROVIDERS --> UTILS
-    PROVIDERS --> FALLBACK
-    PROVIDERS --> SERVICES
-    PROVIDERS --> DEVICE
-    SERVICES --> CACHE --> HIVE
-    PROVIDERS --> HIVE
-    SERVICES --> KMA
-    SERVICES --> TAGO
-    SERVICES --> TOUR
-    WIDGETS --> MAP --> KAKAO
-```
-
-### 시작부터 화면이 채워지기까지
-
-```mermaid
-sequenceDiagram
-    actor User as 사용자
-    participant Main as main.dart
-    participant Shell as MainShell
-    participant Provider as Riverpod
-    participant Local as Hive / Device
-    participant API as Public APIs
-    User->>Main: 앱 실행
-    Main->>Local: Hive, 알림 초기화
-    Main->>Shell: ProviderScope로 시작
-    Shell->>Provider: appInitProvider
-    Provider->>Local: 위치 권한과 현재 위치
-    Local-->>Provider: 제주시 또는 서귀포시
-    Provider->>API: 기상청 예보
-    API-->>Provider: 기온, 강수, 하늘, 풍속
-    Provider->>Local: 저장 일정 로드
-    Provider-->>Shell: 화면 상태 갱신
-    Provider->>API: TourAPI 목록 백그라운드 prefetch
-    API-->>Local: 월 단위 캐시
-```
-
-`appInitProvider`는 권역 감지 → 날씨 → 저장 일정 → 알림 동기화 순으로 필수 상태를 준비합니다. 관광지와 음식점 전체 목록은 첫 화면을 막지 않도록 `unawaited` 백그라운드 prefetch로 시작합니다.
-
 ## 데이터와 장애 대응
 
 여행 앱은 버스 정류장이나 이동 중에 자주 열립니다. API 실패를 곧바로 빈 화면으로 연결하지 않도록 캐시와 로컬 후보를 두었습니다.
@@ -230,21 +258,6 @@ sequenceDiagram
 | 카카오맵 딥링크 | 실제 대중교통 길찾기 | `url_launcher` |
 
 모바일은 공공데이터 API를 HTTPS로 직접 호출합니다. 웹은 CORS 제약 때문에 `JEJUFLOW_API_PROXY`로 지정한 프록시를 거칩니다. 이 저장소에는 프록시 구현이 없습니다.
-
-## 기술 스택
-
-| 구분 | 기술 | 역할 |
-|---|---|---|
-| UI | Flutter, Material 3 | 모바일/웹 UI |
-| 상태 | Riverpod | 동기 상태, API 상태, 일정 영속 상태 조합 |
-| HTTP | Dio | 타임아웃과 응답 정책 |
-| 저장 | Hive | 캐시, 일정, 설정 |
-| 위치 | Geolocator | 권한과 현재 위치 |
-| 지도 | Kakao Maps JS SDK, WebView | 앱 내부 지도 |
-| 외부 이동 | url_launcher | Kakao 딥링크/웹 fallback |
-| 알림 | flutter_local_notifications, timezone | 일정 30분 전 알림 |
-| 이미지 | cached_network_image, palette_generator | 이미지 캐시와 대표 색 |
-| 다국어 | Flutter localizations, Google Fonts | 4개 언어 문구/글꼴 |
 
 ## 프로젝트 구조
 
