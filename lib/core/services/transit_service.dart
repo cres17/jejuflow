@@ -40,7 +40,7 @@ class TransitService {
       final res = await ApiHttp.getUri(_dio, uri);
       if (res.statusCode != 200) {
         _logApiError('Transit arrival', res);
-        return _staleArrivals(cacheKey);
+        return await _staleArrivals(cacheKey);
       }
 
       final result = _items(res.data)
@@ -81,7 +81,7 @@ class TransitService {
       final res = await ApiHttp.getUri(_dio, uri);
       if (res.statusCode != 200) {
         _logApiError('Transit route', res);
-        return CacheService.getStale<RouteInfo>(cacheKey, _routeFromJson);
+        return await CacheService.getStale<RouteInfo>(cacheKey, _routeFromJson);
       }
 
       final items = _items(res.data);
