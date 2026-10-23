@@ -27,6 +27,14 @@
 | Routes | 날짜별 일정 타임라인, 순서 변경, 이동 · 체류 시간 추정, 카카오맵 열기 |
 | Settings | 언어 변경, 일정 30분 전 알림 |
 
+## 화면
+
+| 지금 | 탐색 | 일정 | 설정 |
+|:----:|:----:|:----:|:----:|
+| <img src="docs/screenshots/home.png" width="190"> | <img src="docs/screenshots/explore.png" width="190"> | <img src="docs/screenshots/itinerary.png" width="190"> | <img src="docs/screenshots/settings.png" width="190"> |
+
+Flutter 웹 빌드를 API 키 없이 실행해 촬영했습니다. 날씨와 관광지는 API 키가 없을 때 쓰는 앱 내장 기본값(`weather_service.dart`, `app_providers.dart`의 fallback)이며, 일정 화면은 탐색 탭에서 3곳을 추가한 상태입니다.
+
 ## 전체 아키텍처
 
 <p align="center">
