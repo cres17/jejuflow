@@ -7,14 +7,10 @@
 날씨를 보고, 지금 갈 곳을 고르고, 버스로 이어지는 제주 여행
 
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logoColor=white&logo=flutter)
-![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat&logoColor=white&logo=dart)
 ![Riverpod](https://img.shields.io/badge/Riverpod-0553B1?style=flat&logoColor=white)
 ![Dio](https://img.shields.io/badge/Dio-0175C2?style=flat&logoColor=white)
 ![Hive](https://img.shields.io/badge/Hive-C27C0E?style=flat&logoColor=white)
-![Geolocator](https://img.shields.io/badge/Geolocator-4D5868?style=flat&logoColor=white)
 ![Kakao Maps](https://img.shields.io/badge/Kakao%20Maps-FFCD00?style=flat&logoColor=black&logo=kakao)
-![WebView](https://img.shields.io/badge/WebView-4D5868?style=flat&logoColor=white)
-![flutter_local_notifications](https://img.shields.io/badge/flutter__local__notifications-4D5868?style=flat&logoColor=white)
 ![기상청 API](https://img.shields.io/badge/%EA%B8%B0%EC%83%81%EC%B2%AD%20API-2B6CB0?style=flat&logoColor=white)
 ![TAGO](https://img.shields.io/badge/TAGO-1F7A5C?style=flat&logoColor=white)
 ![TourAPI](https://img.shields.io/badge/TourAPI-1F6F8B?style=flat&logoColor=white)
