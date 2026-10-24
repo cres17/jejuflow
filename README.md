@@ -157,7 +157,7 @@ flowchart LR
 |------|------|------|
 | 서버 없이 클라이언트가 공공 API를 직접 호출 | 화면은 Provider만 `watch`하고 통신과 캐시는 Service 계층이 맡습니다. 모바일은 HTTPS로 직접 요청하고, Web은 CORS 때문에 `JEJUFLOW_API_PROXY`로 지정한 프록시를 거칩니다. | `lib/providers/app_providers.dart`, `core/services/` |
 | API가 실패해도 화면 유지 | 응답을 `data`와 `cachedAt`을 담은 JSON으로 Hive에 저장합니다. 유효 시간은 버스 도착 1분, 날씨 10분, 버스 노선 1일, TourAPI 장소 · 상세 30일이며, 실패하면 `getStale`로 만료된 값이나 앱에 내장한 대표 장소를 돌려줍니다. | `core/services/cache_service.dart` |
-| 날씨로 추천 후보를 거름 | 하늘 상태 · 강수 형태 · 풍속을 `clear / cloudy / rain / windy / storm`으로 분류하고, `rain` · `windy` · `storm`이면 실내 후보만, 그 밖에는 야외 후보만 카드로 보여 줍니다. | `core/services/weather_service.dart` |
+| 날씨로 추천 후보를 거름 | 하늘 상태 · 강수 형태 · 풍속을 `clear / cloudy / rain / windy / storm`으로 분류하고, `rain` · `windy` · `storm`이면 실내 후보만, 그 밖에는 야외 후보만 카드로 보여 줍니다. | `core/utils/weather_utils.dart`, `features/now/now_screen.dart` |
 | 권한이 없어도 동작하는 위치 처리 | 현재 위치의 위도가 33.38보다 낮으면 서귀포시, 아니면 제주시 권역으로 정합니다. 권한이 없거나 10초 안에 위치를 받지 못하면 제주시를 기본값으로 쓰며 이동 경로는 기록하지 않습니다. | `lib/core/utils/location_utils.dart` |
 | 일정 시간은 규칙으로 추정 | 장소 간 Haversine 거리를 평균 24km/h로 이동하는 시간에 8분 여유(최소 12분)를 더하고, 장소 태그에 따라 55~110분을 체류 시간으로 잡아 하루 타임라인을 만듭니다. | `lib/core/utils/route_utils.dart` |
 | 알림은 일정 변경에 맞춰 다시 예약 | 알림을 켜면 권한을 요청하고, 미래 일정마다 30분 전 알림을 `Asia/Seoul` 기준으로 예약합니다. 일정을 지우거나 시간을 바꾸면 기존 알림을 취소하고 다시 예약합니다. | `core/services/local_notification_service.dart` |
