@@ -62,6 +62,11 @@ class _KakaoMapViewState extends State<KakaoMapView> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onWebResourceError: (_) {},
+          // 지도 페이지 밖으로 이동하지 못하게 막는다. 다른 페이지가 이 WebView의 위치 권한을 쓰지 못하도록 하기 위함
+          onNavigationRequest: (request) =>
+              _isAllowedNavigation(request.url, request.isMainFrame)
+                  ? NavigationDecision.navigate
+                  : NavigationDecision.prevent,
         ),
       );
 
@@ -69,8 +74,11 @@ class _KakaoMapViewState extends State<KakaoMapView> {
       final androidController = controller.platform as AndroidWebViewController;
       androidController.setGeolocationEnabled(true);
       androidController.setGeolocationPermissionsPromptCallbacks(
-        onShowPrompt: (_) async =>
-            const GeolocationPermissionsResponse(allow: true, retain: true),
+        // 앱이 직접 띄운 지도 페이지(http://localhost)에만 위치를 허용한다
+        onShowPrompt: (params) async => GeolocationPermissionsResponse(
+          allow: _isMapOrigin(params.origin),
+          retain: false,
+        ),
       );
     }
 
@@ -112,6 +120,25 @@ class _KakaoMapViewState extends State<KakaoMapView> {
   }
 }
 
+const _mapOrigin = 'http://localhost';
+
+bool _isMapOrigin(String origin) {
+  final uri = Uri.tryParse(origin);
+  return uri != null && uri.scheme == 'http' && uri.host == 'localhost' && !uri.hasPort;
+}
+
+bool _isAllowedNavigation(String url, bool isMainFrame) {
+  if (url == 'about:blank' || url.startsWith('$_mapOrigin/') || url == _mapOrigin) {
+    return true;
+  }
+  if (isMainFrame) return false;
+  // 지도 SDK가 여는 하위 프레임은 Kakao 도메인만 허용한다
+  final host = Uri.tryParse(url)?.host ?? '';
+  return url.startsWith('https://') &&
+      (host == 'kakao.com' || host.endsWith('.kakao.com') ||
+          host.endsWith('.daumcdn.net') || host.endsWith('.kakaocdn.net'));
+}
+
 String _html({
   required String appKey,
   required double lat,
@@ -120,6 +147,7 @@ String _html({
   required String nameKo,
   required bool showRoute,
 }) {
+  // <script> 안에 넣는 JSON이므로 '</script>'로 태그가 끊기지 않게 '<'를 이스케이프한다
   final options = jsonEncode({
     'appKey': appKey,
     'lat': lat,
@@ -128,7 +156,7 @@ String _html({
     'nameKo': nameKo,
     'showRoute': showRoute,
     'level': showRoute ? 7 : 6,
-  });
+  }).replaceAll('<', r'\u003c');
 
   return '''
 <!doctype html>
