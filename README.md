@@ -63,13 +63,101 @@ lib/
 └── shared/widgets/ 카드 · 지도(Kakao WebView) · 경로 단계 위젯
 ```
 
+## 기능 흐름
+
+### 1. 앱 시작과 권역 판정
+
+위치 권한이 없거나 좌표를 10초 안에 받지 못해도 제주시 권역으로 시작합니다.
+
+```mermaid
+flowchart TD
+  A([앱 실행]) --> B[Hive 박스 열기 cache · routes<br/>로컬 알림 초기화]
+  B --> D{위치 권한 있고<br/>10초 안에 좌표 수신?}
+  D -- 예 --> E{위도 &lt; 33.38}
+  E -- 예 --> F[서귀포시 권역]
+  E -- 아니오 --> G[제주시 권역]
+  D -- 아니오 --> G
+  F --> H
+  G --> H[권역 날씨 조회]
+  H --> I[저장 일정 불러오기<br/>알림 켜짐이면 30분 전 알림 예약]
+  I --> L[TourAPI 관광지 · 음식점 목록<br/>백그라운드 미리 받기]
+```
+
+### 2. 날씨 판정
+
+기상청 단기예보 값을 다섯 가지 상태로 나누고, 그 결과로 Now 탭에 실내 카드만 보여 줄지 야외 카드만 보여 줄지 정합니다.
+
+```mermaid
+flowchart LR
+  W[기상청 단기예보<br/>강수형태 PTY · 풍속 WSD · 하늘 SKY] --> P{비 · 눈<br/>PTY 1~4?}
+  P -- 예 --> PW{풍속 ≥ 14m/s}
+  PW -- 예 --> ST[storm]
+  PW -- 아니오 --> RA[rain]
+  P -- 아니오 --> WW{풍속 ≥ 14m/s}
+  WW -- 예 --> WI[windy]
+  WW -- 아니오 --> SK{SKY = 4<br/>흐림?}
+  SK -- 예 --> CL[cloudy]
+  SK -- 아니오 --> CE[clear]
+  ST & RA & WI --> BAD[[실내 카드만]]
+  CL & CE --> GOOD[[야외 카드만]]
+  classDef bad fill:#fde8e4,stroke:#d9826f,color:#5b2a20
+  classDef good fill:#e6f4ea,stroke:#6fae7f,color:#1f4a2b
+  class ST,RA,WI,BAD bad
+  class CL,CE,GOOD good
+```
+
+### 3. Now 탭 추천 카드
+
+TourAPI 추천을 우선 쓰고, 응답이 비면 앱 내장 대표 장소로 채웁니다. TourAPI 장소는 관광지를 야외, 음식점 · 카페를 실내로 분류합니다.
+
+```mermaid
+flowchart LR
+  subgraph SRC[카드 후보]
+    T[TourAPI 무작위 추천<br/>관광지 12 · 음식점 6 · 카페 6] -->|비어 있으면| K[앱 내장 대표 장소<br/>현재 권역]
+  end
+  SRC --> F[날씨 필터<br/>실내 또는 야외]
+  F --> X[일정에 담은 곳 ·<br/>넘긴 곳 제외 · 최대 20장]
+  X --> C{{맨 위 카드 드래그}}
+  C -- 위로 80px 이상 --> D[추가 대화상자<br/>시간 지정 선택] --> R[(일정 초안)]
+  C -- 아래로 80px 이상 --> S[(넘긴 장소 목록)]
+  C -- 그 외 --> Z[제자리로 복귀]
+```
+
+### 4. 공공 API 조회와 캐시
+
+모든 조회는 같은 순서를 따르므로 네트워크가 끊겨도 화면이 비지 않습니다. 유효 시간은 버스 도착 1분, 날씨 10분, 버스 노선 1일, 장소 30일입니다.
+
+```mermaid
+flowchart LR
+  Q([조회 요청]) --> H{Hive 캐시<br/>유효 시간 안?}
+  H -- 예 --> OK([캐시 반환])
+  H -- 아니오 --> API[공공 API 호출]
+  API -- 성공 --> SAVE[data + cachedAt 저장] --> OK2([새 응답 반환])
+  API -- 실패 --> STALE{만료된 캐시<br/>있음?}
+  STALE -- 예 --> OK3([만료 캐시 반환])
+  STALE -- 아니오 --> FB([내장 기본값<br/>날씨: 맑음 22°C<br/>장소: 대표 장소])
+  classDef ok fill:#e6f4ea,stroke:#6fae7f
+  classDef fb fill:#fff4dc,stroke:#d9b45f
+  class OK,OK2,OK3 ok
+  class FB fb
+```
+
+### 5. 일정 타임라인과 알림
+
+```mermaid
+flowchart LR
+  A[장소 A] -->|"이동: 거리 ÷ 24km/h + 8분<br/>(최소 12분)"| B[장소 B]
+  B -->|"체류: 55~110분<br/>(장소 태그로 결정)"| C[다음 장소]
+  C -.-> S1[일정 저장 · 시간 변경] --> S2[기존 알림 취소] --> S3[출발 30분 전<br/>알림 다시 예약]
+```
+
 ## 핵심 설계 결정
 
 | 결정 | 방식 | 위치 |
 |------|------|------|
 | 서버 없이 클라이언트가 공공 API를 직접 호출 | 화면은 Provider만 `watch`하고 통신과 캐시는 Service 계층이 맡습니다. 모바일은 HTTPS로 직접 요청하고, Web은 CORS 때문에 `JEJUFLOW_API_PROXY`로 지정한 프록시를 거칩니다. | `lib/providers/app_providers.dart`, `core/services/` |
 | API가 실패해도 화면 유지 | 응답을 `data`와 `cachedAt`을 담은 JSON으로 Hive에 저장합니다. 유효 시간은 버스 도착 1분, 날씨 10분, 버스 노선 1일, TourAPI 장소 · 상세 30일이며, 실패하면 `getStale`로 만료된 값이나 앱에 내장한 대표 장소를 돌려줍니다. | `core/services/cache_service.dart` |
-| 날씨로 추천 순서를 바꿈 | 하늘 상태 · 강수 형태 · 풍속 · 기온을 `clear / cloudy / rain / windy / storm`으로 분류하고, `rain` · `windy` · `storm`이면 실내 후보를 앞에 둡니다. | `core/services/weather_service.dart` |
+| 날씨로 추천 후보를 거름 | 하늘 상태 · 강수 형태 · 풍속을 `clear / cloudy / rain / windy / storm`으로 분류하고, `rain` · `windy` · `storm`이면 실내 후보만, 그 밖에는 야외 후보만 카드로 보여 줍니다. | `core/services/weather_service.dart` |
 | 권한이 없어도 동작하는 위치 처리 | 현재 위치의 위도가 33.38보다 낮으면 서귀포시, 아니면 제주시 권역으로 정합니다. 권한이 없거나 10초 안에 위치를 받지 못하면 제주시를 기본값으로 쓰며 이동 경로는 기록하지 않습니다. | `lib/core/utils/location_utils.dart` |
 | 일정 시간은 규칙으로 추정 | 장소 간 Haversine 거리를 평균 24km/h로 이동하는 시간에 8분 여유(최소 12분)를 더하고, 장소 태그에 따라 55~110분을 체류 시간으로 잡아 하루 타임라인을 만듭니다. | `lib/core/utils/route_utils.dart` |
 | 알림은 일정 변경에 맞춰 다시 예약 | 알림을 켜면 권한을 요청하고, 미래 일정마다 30분 전 알림을 `Asia/Seoul` 기준으로 예약합니다. 일정을 지우거나 시간을 바꾸면 기존 알림을 취소하고 다시 예약합니다. | `core/services/local_notification_service.dart` |
