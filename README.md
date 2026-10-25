@@ -38,6 +38,8 @@ API 키 없이 실행한 웹 빌드입니다. 날씨와 장소는 앱의 기본�
 
 ## 장소 추천
 
+<p><img src="https://img.shields.io/badge/MAIN%20FEATURE-EA733B?style=flat-square" alt="MAIN 기능" height="20"></p>
+
 앱을 열면 위치 권한과 좌표를 확인합니다. 위도가 33.38보다 낮으면 서귀포시, 그 외에는 제주시 권역을 사용합니다. 권한을 받지 못하거나 10초 안에 좌표가 오지 않으면 제주시에서 시작합니다.
 
 기상청 단기예보의 강수 형태, 풍속, 하늘 상태로 추천 후보를 거릅니다.
@@ -56,6 +58,8 @@ TourAPI 후보를 우선 사용하고 응답이 비어 있으면 해당 권역�
 
 ## 조회와 캐시
 
+<p><img src="https://img.shields.io/badge/SUB%20FEATURE-F4B395?style=flat-square" alt="SUB 기능" height="20"></p>
+
 API를 호출하기 전에 Hive에서 유효한 캐시를 찾습니다. 새 응답에는 데이터와 저장 시각을 함께 기록합니다. 호출이 실패하면 만료 캐시를 사용하고, 그것도 없으면 내장값을 반환합니다. 기본 날씨인 맑음 22°C는 이 대체 경로의 값입니다.
 
 | 데이터 | 캐시 유효 시간 |
@@ -68,6 +72,8 @@ API를 호출하기 전에 Hive에서 유효한 캐시를 찾습니다. 새 응�
 버스 정보는 TAGO, 장소 정보는 TourAPI에서 가져옵니다. Tour DataLab은 관련 장소와 혼잡도 보조 지표에 사용합니다. 지도 표시는 Kakao Maps JS SDK를 쓰고, 길찾기는 카카오맵 앱 또는 웹으로 연결합니다.
 
 ## 일정과 알림
+
+<p><img src="https://img.shields.io/badge/MAIN%20FEATURE-EA733B?style=flat-square" alt="MAIN 기능" height="20"></p>
 
 일정은 Hive의 `routes` 박스에 저장합니다. 장소 간 이동 시간은 Haversine 거리와 평균 24km/h를 기준으로 계산한 뒤 8분을 더하며, 최소 12분으로 잡습니다. 체류 시간은 장소 태그에 따라 55~110분을 배정합니다. 실제 버스 배차나 도로 경로를 반영한 소요 시간은 아닙니다.
 
