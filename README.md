@@ -120,10 +120,10 @@ API를 호출하기 전에 Hive에서 유효한 캐시를 찾습니다. 새 응�
 
 | 키 | 발급 서비스 |
 |:---:|:---:|
-| `WEATHER_API_KEY` | 기상청 단기예보 |
-| `TAGO_API_KEY` | 국토교통부 TAGO |
-| `TOUR_API_KEY` | 한국관광공사 TourAPI |
-| `KAKAO_MAP_KEY` | Kakao Developers JavaScript |
+| `JEJUFLOW_WEATHER_API_KEY` | 기상청 단기예보 |
+| `JEJUFLOW_TAGO_API_KEY` | 국토교통부 TAGO |
+| `JEJUFLOW_TOUR_API_KEY` | 한국관광공사 TourAPI |
+| `JEJUFLOW_KAKAOMAP_KEY` | Kakao Developers JavaScript |
 
 </div>
 
@@ -144,3 +144,17 @@ flutter run -d chrome --dart-define-from-file=.env \
 flutter analyze
 flutter test
 ```
+
+기존 `WEATHER_API_KEY`, `TAGO_API_KEY`, `TOUR_API_KEY`, `KAKAO_MAP_KEY`와 Expo 시절 키 이름도 계속 지원합니다. `JEJUFLOW_` 이름이 우선하며 `.env`를 런타임에 읽지 않고 `--dart-define-from-file`로 전달합니다.
+
+## CI/CD
+
+Flutter 3.44.6과 JDK 17을 사용합니다. PR 및 main 푸시의 **App CI**는 잠금 파일 기반 의존성 설치, 정적 분석, 테스트, 새/기존 API 키 호환성, Web release·Android debug APK·서명 없는 release AAB 빌드를 검사합니다. CI 산출물은 Actions에서 7일 동안 내려받을 수 있습니다. API 키 없는 빌드는 기본 데이터로 실행되며, 서명 없는 AAB는 배포용이 아닙니다.
+
+**Signed Android release**는 main에서 수동 실행하며, 기존에 배포한 값보다 큰 `build_number`를 입력합니다. `release` Environment에 다음 Secrets를 등록해야 합니다.
+
+- `ANDROID_KEYSTORE_BASE64`: 기존 앱 배포 키스토어의 Base64 값
+- `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_PASSWORD`, `ANDROID_KEY_ALIAS`
+- `JEJUFLOW_WEATHER_API_KEY`, `JEJUFLOW_TAGO_API_KEY`, `JEJUFLOW_TOUR_API_KEY`, `JEJUFLOW_KAKAOMAP_KEY`
+
+필수 설정이 없으면 릴리스 빌드는 실패하며 임의의 debug 서명으로 대체하지 않습니다. 서명된 APK/AAB는 Actions 산출물로 제공하고, Google Play 업로드는 별도 진행합니다. 앱에 포함되는 API 키는 추출할 수 있으므로 발급처에서 앱·도메인 제한과 사용량 제한을 설정해야 합니다. CI에는 실제 키를 전달하지 않습니다.

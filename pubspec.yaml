@@ -1,6 +1,6 @@
 name: jejuflow
 description: Jeju travel app — instant answer to "where to go right now by bus?"
-version: 1.0.1+2
+version: 1.0.1+3
 publish_to: none
 
 environment:
