@@ -22,15 +22,21 @@
 
 ## 화면
 
+<div align="center">
+
 | Now | Move | Routes | Settings |
 |:---:|:---:|:---:|:---:|
 | <img src="docs/screenshots/home.png" alt="장소 추천" width="190"> | <img src="docs/screenshots/explore.png" alt="장소 탐색" width="190"> | <img src="docs/screenshots/itinerary.png" alt="여행 일정" width="190"> | <img src="docs/screenshots/settings.png" alt="설정" width="190"> |
+
+</div>
 
 API 키 없이 실행한 웹 빌드입니다. 날씨와 장소는 앱의 기본값이며, 일정에는 탐색 화면에서 선택한 세 장소를 담았습니다.
 
 ## 구조
 
-![JEJUFLOW 구성](docs/assets/readme/architecture.svg)
+<p align="center">
+  <img src="docs/assets/readme/architecture.svg" alt="JEJUFLOW 구성" width="1120">
+</p>
 
 화면은 Riverpod Provider를 구독하고, Service가 공공 API와 Hive 캐시를 다룹니다. 모바일은 공공 API에 직접 요청합니다. Web에서는 CORS 처리를 위해 `JEJUFLOW_API_PROXY`로 지정한 프록시를 사용합니다.
 
@@ -43,6 +49,8 @@ API 키 없이 실행한 웹 빌드입니다. 날씨와 장소는 앱의 기본�
 
 기상청 단기예보의 강수 형태, 풍속, 하늘 상태로 추천 후보를 거릅니다.
 
+<div align="center">
+
 | 예보 | 분류 | 추천 |
 |:---:|:---:|:---:|
 | 강수 있음 + 풍속 14m/s 이상 | `storm` | 실내 |
@@ -50,6 +58,8 @@ API 키 없이 실행한 웹 빌드입니다. 날씨와 장소는 앱의 기본�
 | 강수 없음 + 풍속 14m/s 이상 | `windy` | 실내 |
 | 강수 없음 + 흐림 | `cloudy` | 야외 |
 | 나머지 | `clear` | 야외 |
+
+</div>
 
 TourAPI 후보를 우선 사용하고 응답이 비어 있으면 해당 권역의 내장 장소로 채웁니다. 관광지는 야외, 음식점과 카페는 실내로 분류합니다. 이미 일정에 넣었거나 넘긴 장소는 빼고 최대 20장의 카드를 구성합니다.
 
@@ -60,12 +70,16 @@ TourAPI 후보를 우선 사용하고 응답이 비어 있으면 해당 권역�
 
 API를 호출하기 전에 Hive에서 유효한 캐시를 찾습니다. 새 응답에는 데이터와 저장 시각을 함께 기록합니다. 호출이 실패하면 만료 캐시를 사용하고, 그것도 없으면 내장값을 반환합니다. 기본 날씨인 맑음 22°C는 이 대체 경로의 값입니다.
 
+<div align="center">
+
 | 데이터 | 캐시 유효 시간 |
 |:---:|:---:|
 | 버스 도착 | 1분 |
 | 날씨 | 10분 |
 | 버스 노선 | 1일 |
 | 장소 목록·상세 | 30일 |
+
+</div>
 
 버스 정보는 TAGO, 장소 정보는 TourAPI에서 가져옵니다. Tour DataLab은 관련 장소와 혼잡도 보조 지표에 사용합니다. 지도 표시는 Kakao Maps JS SDK를 쓰고, 길찾기는 카카오맵 앱 또는 웹으로 연결합니다.
 
@@ -77,6 +91,8 @@ API를 호출하기 전에 Hive에서 유효한 캐시를 찾습니다. 새 응�
 알림을 켜면 `Asia/Seoul` 기준으로 일정 출발 30분 전 알림을 예약합니다. 시간을 바꾸거나 일정을 삭제하면 기존 알림을 취소하고 다시 예약합니다.
 
 ## 기술별 역할
+
+<div align="center">
 
 | 기술 | 용도 | 위치 |
 |:---:|:---:|:---:|
@@ -90,6 +106,8 @@ API를 호출하기 전에 Hive에서 유효한 캐시를 찾습니다. 새 응�
 | Geolocator | 현재 위치로 권역 판정 | `lib/core/utils/location_utils.dart` |
 | Kakao Maps · WebView · url_launcher | 지도는 Kakao Maps JS SDK(모바일 `webview_flutter`, Web `web/kakao_map.js`), 길찾기는 `kakaomap://` 딥링크나 웹으로 연결 | `shared/widgets/kakao_map_view_*.dart` |
 
+</div>
+
 ### 화면 표현과 알림
 
 장소 사진은 cached_network_image로 표시하고 palette_generator가 뽑은 대표색을 상세 카드에 사용합니다. google_fonts와 Flutter 다국어 설정은 언어별 표시를 담당합니다. flutter_local_notifications와 timezone은 일정 알림에 사용합니다. 일정 저장과 API 캐시를 모두 Hive에 두지만 서로 다른 박스로 관리합니다.
@@ -98,12 +116,16 @@ API를 호출하기 전에 Hive에서 유효한 캐시를 찾습니다. 새 응�
 
 `.env.example`을 복사하고 키를 입력합니다.
 
+<div align="center">
+
 | 키 | 발급 서비스 |
 |:---:|:---:|
 | `WEATHER_API_KEY` | 기상청 단기예보 |
 | `TAGO_API_KEY` | 국토교통부 TAGO |
 | `TOUR_API_KEY` | 한국관광공사 TourAPI |
 | `KAKAO_MAP_KEY` | Kakao Developers JavaScript |
+
+</div>
 
 ```bash
 cp .env.example .env
