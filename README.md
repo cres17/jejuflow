@@ -6,17 +6,12 @@
 
 날씨를 보고, 지금 갈 곳을 고르고, 버스로 이어지는 제주 여행
 
-![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logoColor=white&logo=flutter)
-![Riverpod](https://img.shields.io/badge/Riverpod-0553B1?style=flat&logoColor=white)
-![Dio](https://img.shields.io/badge/Dio-0175C2?style=flat&logoColor=white)
-![Hive](https://img.shields.io/badge/Hive-C27C0E?style=flat&logoColor=white)
-![Kakao Maps](https://img.shields.io/badge/Kakao%20Maps-FFCD00?style=flat&logoColor=black&logo=kakao)
-![기상청 API](https://img.shields.io/badge/%EA%B8%B0%EC%83%81%EC%B2%AD%20API-2B6CB0?style=flat&logoColor=white)
-![TAGO](https://img.shields.io/badge/TAGO-1F7A5C?style=flat&logoColor=white)
-![TourAPI](https://img.shields.io/badge/TourAPI-1F6F8B?style=flat&logoColor=white)
-![Android](https://img.shields.io/badge/Android-3DDC84?style=flat&logoColor=black&logo=android)
+
+<p>Flutter · Riverpod · Dio · Hive</p>
 
 </div>
+
+[구조](#architecture) · [구현 살펴보기](#implementation)
 
 제주 여행 중 "그래서 지금 어디로 가지?"를 빠르게 정하도록 돕는 Flutter 앱입니다. 현재 위치로 제주시 · 서귀포시 권역을 나누고, 기상청 예보가 비 · 강풍이면 실내 장소를, 아니면 야외 장소를 먼저 카드로 보여 줍니다. 카드를 위로 밀면 일정에 담고 아래로 밀면 넘기며, 담은 장소는 날짜별 타임라인과 버스 도착 정보, 카카오맵 길찾기로 이어집니다. 한국어 · 영어 · 일본어 · 중국어를 지원합니다.
 
@@ -35,7 +30,9 @@
 
 Flutter 웹 빌드를 API 키 없이 실행해 촬영했습니다. 날씨와 관광지는 API 키가 없을 때 쓰는 앱 내장 기본값(`weather_service.dart`, `app_providers.dart`의 fallback)이며, 일정 화면은 탐색 탭에서 3곳을 추가한 상태입니다.
 
-## 전체 아키텍처
+<a id="architecture"></a>
+
+## 구조 한눈에 보기
 
 <p align="center">
   <img src="docs/assets/readme/architecture.svg" alt="JEJUFLOW 전체 아키텍처" width="100%">
@@ -62,6 +59,8 @@ lib/
 │   └── constants/ 내장 대표 장소 · API 키 · 색상
 └── shared/widgets/ 카드 · 지도(Kakao WebView) · 경로 단계 위젯
 ```
+
+<a id="implementation"></a>
 
 ## 기능 흐름
 
