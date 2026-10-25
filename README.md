@@ -1,4 +1,22 @@
-# JEJUFLOW
+<p align="center">
+  <img src="assets/branding/jejuflow-logo.png" alt="JEJUFLOW 로고" width="140">
+</p>
+
+<h1 align="center">JEJUFLOW</h1>
+
+<div align="center">
+
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logoColor=white&logo=flutter)
+![Riverpod](https://img.shields.io/badge/Riverpod-0553B1?style=flat&logoColor=white)
+![Dio](https://img.shields.io/badge/Dio-0175C2?style=flat&logoColor=white)
+![Hive](https://img.shields.io/badge/Hive-C27C0E?style=flat&logoColor=white)
+![Kakao Maps](https://img.shields.io/badge/Kakao%20Maps-FFCD00?style=flat&logoColor=black&logo=kakao)
+![기상청 API](https://img.shields.io/badge/%EA%B8%B0%EC%83%81%EC%B2%AD%20API-2B6CB0?style=flat&logoColor=white)
+![TAGO](https://img.shields.io/badge/TAGO-1F7A5C?style=flat&logoColor=white)
+![TourAPI](https://img.shields.io/badge/TourAPI-1F6F8B?style=flat&logoColor=white)
+![Android](https://img.shields.io/badge/Android-3DDC84?style=flat&logoColor=black&logo=android)
+
+</div>
 
 제주의 날씨와 현재 위치를 바탕으로 갈 곳을 고르고, 날짜별 여행 일정에 담는 Flutter 앱입니다. 관광지·음식점·카페를 탐색하면서 버스 도착 정보를 확인하고 카카오맵 길찾기로 이동할 수 있습니다. 한국어, 영어, 일본어, 중국어를 지원합니다.
 
