@@ -73,6 +73,24 @@ API를 호출하기 전에 Hive에서 유효한 캐시를 찾습니다. 새 응�
 
 알림을 켜면 `Asia/Seoul` 기준으로 일정 출발 30분 전 알림을 예약합니다. 시간을 바꾸거나 일정을 삭제하면 기존 알림을 취소하고 다시 예약합니다.
 
+## 기술별 역할
+
+| 기술 | 용도 | 위치 |
+|------|------|------|
+| Flutter · Dart | Android와 Web을 한 코드로 빌드. 하단 탭은 `PageView`로 구성해 스와이프로 이동하고 `tabIndexProvider`와 동기화. 언어를 바꾸면 문구 · 글꼴 · TourAPI 요청 언어가 함께 바뀌고, 장소 사진에서 `palette_generator`로 대표 색을 뽑아 상세 카드에 사용 | `lib/features/` |
+| Riverpod | 탭 · 필터 · 언어는 `StateProvider`, 날씨 · 장소 · 버스 조회는 `FutureProvider`, 저장 일정은 `AsyncNotifierProvider`(`SavedRoutesNotifier`) | `lib/providers/app_providers.dart` |
+| Dio · Service 계층 | `WeatherService`, `TransitService`, `TourService`가 공공 API를 호출 | `lib/core/services/` |
+| Hive | 응답 캐시(`cache` 박스)와 저장 일정(`routes` 박스), 언어 · 알림 설정을 기기 로컬에 저장 | `core/services/cache_service.dart` |
+| 기상청 단기예보 API | 권역 좌표의 하늘 상태 · 강수 형태 · 풍속 · 기온 | `WeatherService` |
+| TAGO 버스 API | 정류장별 도착 예정(`ArvlInfoInqireService`)과 노선(`BusRouteInfoInqireService`). 정류장 ID가 있는 장소의 상세 화면에 표시 | `TransitService` |
+| TourAPI · Tour DataLab | `KorService2`로 관광지 · 음식점 · 카페 목록, 이미지(`detailImage2`), 소개 · 운영시간(`detailIntro2`). `DataLabService1`로 관련 장소와 혼잡도 보조 지표. 음식점과 카페가 같은 콘텐츠 타입이라 카테고리 코드 `A05020900`으로 카페를 구분 | `TourService` |
+| Geolocator | 현재 위치로 권역 판정 | `lib/core/utils/location_utils.dart` |
+| Kakao Maps · WebView · url_launcher | 지도는 Kakao Maps JS SDK(모바일 `webview_flutter`, Web `web/kakao_map.js`), 길찾기는 `kakaomap://` 딥링크나 웹으로 연결 | `shared/widgets/kakao_map_view_*.dart` |
+
+### 화면 표현과 알림
+
+장소 사진은 cached_network_image로 표시하고 palette_generator가 뽑은 대표색을 상세 카드에 사용합니다. google_fonts와 Flutter 다국어 설정은 언어별 표시를 담당합니다. flutter_local_notifications와 timezone은 일정 알림에 사용합니다. 일정 저장과 API 캐시를 모두 Hive에 두지만 서로 다른 박스로 관리합니다.
+
 ## 실행
 
 `.env.example`을 복사하고 키를 입력합니다.
